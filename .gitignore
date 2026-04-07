@@ -1,0 +1,26 @@
+# Your original rules (slash formatting corrected)
+*.iml
+.gradle/
+.idea/caches/
+.idea/libraries/
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+.DS_Store
+build/
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Local configuration (secrets and paths)
+local.properties
+
+# NEW: Prevent compiled apps from being pushed
+*.apk
+*.ap_
+*.aab
+
+# NEW: Prevent security keys from being leaked
+*.jks
+*.keystore
