@@ -11,6 +11,7 @@
         <item name="colorSurface">@color/surface_dark</item>
         <item name="colorOnSurface">@color/white</item>
         <item name="colorError">@color/error_red</item>
+        <item name="android:fontFamily">@font/poppins</item>
     </style>
     <style name="Theme.EnviroSense" parent="Base.Theme.EnviroSense" />
 </resources>

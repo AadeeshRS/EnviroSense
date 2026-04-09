@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/card_first_launch"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_card_rounded"
+    android:backgroundTint="#161819"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:visibility="gone">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Your Optimal Conditions"
+        android:textColor="#666666"
+        android:textSize="14sp"
+        android:fontFamily="@font/poppins_medium"
+        android:layout_marginBottom="12dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="— dB"
+            android:textColor="#666666"
+            android:textSize="14sp"
+            android:background="@drawable/bg_card_rounded"
+            android:backgroundTint="#2A2C2E"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="— lux"
+            android:textColor="#666666"
+            android:textSize="14sp"
+            android:background="@drawable/bg_card_rounded"
+            android:backgroundTint="#2A2C2E"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="— time"
+            android:textColor="#666666"
+            android:textSize="14sp"
+            android:background="@drawable/bg_card_rounded"
+            android:backgroundTint="#2A2C2E"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="8dp" />
+    </LinearLayout>
+
+</LinearLayout>
