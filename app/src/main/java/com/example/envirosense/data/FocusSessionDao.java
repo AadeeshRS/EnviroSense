@@ -1,4 +1,4 @@
-package com.example.envirosense;
+package com.example.envirosense.data;
 
 import androidx.room.Dao;
 import androidx.room.Insert;

@@ -1,4 +1,4 @@
-package com.example.envirosense;
+package com.example.envirosense.ui.home;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.example.envirosense.R;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
 public class SessionCompleteBottomSheet extends BottomSheetDialogFragment {

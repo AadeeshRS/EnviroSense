@@ -9,6 +9,8 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.envirosense.ui.home.HomeFragment;
+import com.example.envirosense.ui.analytics.AnalyticsFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
@@ -30,18 +32,23 @@ public class MainActivity extends AppCompatActivity {
             int itemId = item.getItemId();
             if (itemId == R.id.navigation_home) {
                 selectedFragment = new HomeFragment();
-            } else {
-                selectedFragment = new DummyFragment();
+            } else if (itemId == R.id.navigation_analytics) {
+                selectedFragment = new AnalyticsFragment();
+            } else if (itemId == R.id.navigation_settings) {
+                return true;
             }
+
             if (selectedFragment != null) {
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment)
+                        .commit();
             }
             return true;
         });
 
         // Load correct fragment on first launch
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment()).commit();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new HomeFragment())
+                    .commit();
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.example.envirosense;
+package com.example.envirosense.data;
 
 import android.content.Context;
 import androidx.room.Database;
