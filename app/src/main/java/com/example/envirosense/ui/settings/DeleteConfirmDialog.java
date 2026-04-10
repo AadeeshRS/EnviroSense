@@ -43,6 +43,11 @@ public class DeleteConfirmDialog extends DialogFragment {
             new Thread(() -> {
                 AppDatabase.getInstance(requireContext()).focusSessionDao().deleteAllSessions();
 
+                requireContext().getSharedPreferences("EnviroSenseAchieve", android.content.Context.MODE_PRIVATE)
+                        .edit()
+                        .clear()
+                        .apply();
+
                 requireActivity().runOnUiThread(() -> {
                     Toast.makeText(getContext(), "Data permanently erased", Toast.LENGTH_SHORT).show();
                     if (listener != null) listener.onDataDeleted();

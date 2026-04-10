@@ -43,6 +43,8 @@ public class AchievementManager {
         new Thread(() -> {
             List<FocusSession> sessions = AppDatabase.getInstance(context).focusSessionDao().getAllSessions();
 
+            if (sessions.isEmpty()) return;
+
             long totalDurationMs = 0;
             double totalAccumulatedScore = 0;
             for (FocusSession s : sessions) {
@@ -51,19 +53,17 @@ public class AchievementManager {
             }
 
             int finalTotalHours = (int) ((totalDurationMs / 1000) / 60) / 60;
-            final double lifetimeAverageScore;
-            if (!sessions.isEmpty()) {
-                lifetimeAverageScore = totalAccumulatedScore / sessions.size();
-            } else {
-                lifetimeAverageScore = 0;
-            }
+            double lifetimeAverageScore = totalAccumulatedScore / sessions.size();
 
-            if (!sessions.isEmpty() && finalTotalHours < 1) {
+
+            if (sessions.size() >= 1 && finalTotalHours < 1) {
                 finalTotalHours = 1;
             }
 
             SharedPreferences prefs = context.getSharedPreferences("EnviroSenseAchieve", Context.MODE_PRIVATE);
             List<Achievement> allBadges = getBadges();
+
+            long delayMs = 0;
 
             for (Achievement badge : allBadges) {
                 boolean isUnlocked = false;
@@ -80,33 +80,36 @@ public class AchievementManager {
                     boolean hasShownToastBefore = prefs.getBoolean("toast_shown_" + badge.id, false);
                     if (!hasShownToastBefore) {
                         prefs.edit().putBoolean("toast_shown_" + badge.id, true).apply();
-                        showCustomAchievementToast(context, badge);
+
+                        long currentDelay = delayMs;
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                            showCustomAchievementToast(context, badge);
+                        }, currentDelay);
+
+                        delayMs += 4000;
                     }
-                } else {
-                    prefs.edit().putBoolean("toast_shown_" + badge.id, false).apply();
                 }
+
             }
         }).start();
     }
 
     private static void showCustomAchievementToast(Context context, Achievement badge) {
-        new Handler(Looper.getMainLooper()).post(() -> {
-            LayoutInflater inflater = LayoutInflater.from(context);
-            View layout = inflater.inflate(R.layout.toast_achievement, null);
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View layout = inflater.inflate(R.layout.toast_achievement, null);
 
-            ImageView icon = layout.findViewById(R.id.toast_icon);
-            TextView title = layout.findViewById(R.id.toast_title);
-            TextView desc = layout.findViewById(R.id.toast_desc);
+        ImageView icon = layout.findViewById(R.id.toast_icon);
+        TextView title = layout.findViewById(R.id.toast_title);
+        TextView desc = layout.findViewById(R.id.toast_desc);
 
-            icon.setImageResource(badge.iconResId);
-            title.setText(badge.title + " unlocked");
-            desc.setText(badge.longDescription);
+        icon.setImageResource(badge.iconResId);
+        title.setText(badge.title + " unlocked!");
+        desc.setText(badge.longDescription);
 
-            Toast toast = new Toast(context);
-            toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 200);
-            toast.setDuration(Toast.LENGTH_LONG);
-            toast.setView(layout);
-            toast.show();
-        });
+        Toast toast = new Toast(context);
+        toast.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 200);
+        toast.setDuration(Toast.LENGTH_LONG);
+        toast.setView(layout);
+        toast.show();
     }
 }

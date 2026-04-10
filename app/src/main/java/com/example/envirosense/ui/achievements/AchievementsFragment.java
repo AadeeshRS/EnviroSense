@@ -88,11 +88,14 @@ public class AchievementsFragment extends Fragment {
             requireActivity().runOnUiThread(() -> {
                 tvTotalHours.setText(String.valueOf(displayHours));
 
+                // For the simulation, pretend we have a high score and enough sessions
+                double finalAvgScore = USE_SIMULATION ? 95.0 : lifetimeAverageScore;
+                int finalSessionCount = USE_SIMULATION ? 10 : sessions.size();
+
                 android.content.SharedPreferences prefs = requireActivity().getSharedPreferences("EnviroSenseAchieve",
                         android.content.Context.MODE_PRIVATE);
 
                 for (Achievement badge : allBadges) {
-
                     if (badge.id != 5) {
                         badge.currentProgressHrs = displayHours;
                         if (displayHours >= badge.targetHours) {
@@ -101,20 +104,10 @@ public class AchievementsFragment extends Fragment {
                             badge.isUnlocked = false;
                         }
                     } else {
-                        badge.currentProgressHrs = (int) lifetimeAverageScore;
+                        badge.currentProgressHrs = (int) finalAvgScore;
                         badge.targetHours = 90;
-                        badge.isUnlocked = lifetimeAverageScore >= 90.0 && sessions.size() >= 10;
+                        badge.isUnlocked = finalAvgScore >= 90.0 && finalSessionCount >= 10;
                     }
-
-                    if (badge.isUnlocked) {
-                        boolean hasShownToastBefore = prefs.getBoolean("toast_shown_" + badge.id, false);
-                        if (!hasShownToastBefore) {
-                            prefs.edit().putBoolean("toast_shown_" + badge.id, true).apply();
-                        }
-                    } else {
-                        prefs.edit().putBoolean("toast_shown_" + badge.id, false).apply();
-                    }
-
                 }
 
                 adapter.notifyDataSetChanged();
