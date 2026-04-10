@@ -1,52 +1,57 @@
 # EnviroSense
 
-EnviroSense is a smart Android application designed to help users find their perfect environment for deep work and studying. By continuously monitoring ambient noise and light levels in real-time, the app calculates a live "Focus Score" to let you know if your current surroundings are optimal for productivity.
+EnviroSense is a productivity and environmental tracking Android application designed to help users maintain focus by monitoring their physical surroundings. The app tracks ambient noise levels and lighting conditions, gamifies the focus experience, and automatically manages system settings like "Do Not Disturb" to create the perfect work environment.
 
-## Features
+## Features (Single-Player MVP)
 
-*   **Live Focus Score:** A dynamic, real-time score (0-100) calculated using an exponential moving average (EMA) based on your immediate environment.
-*   **Ambient Noise Tracking:** Utilizes the device's microphone to monitor decibel (dB) levels and alerts you if noise spikes past your acceptable threshold.
-*   **Light Sensor Integration:** Checks ambient lux values to ensure your workspace is properly lit (not too dim, not aggressively bright).
-*   **Session Tracking:** Start, pause, and end focus sessions. 
-*   **Local History (Room DB):** All completed sessions—including duration, final average focus score, and active location—are securely saved locally on the device using a Room SQLite database.
-*   **Dynamic UI States:** Seamless transitions between First Launch, Default dashboard, Active Session monitoring, and Post-Session summary bottom sheets.
+### 1. Focus Tracking (Home)
+- **Sensor Monitoring**: Actively tracks ambient noise (dB) and light (Lux) levels using device hardware to ensure optimal studying/working conditions.
+- **Background Persistence**: The tracking engine runs reliably in the background. Navigating across tabs will not kill active sessions.
+- **Auto Do Not Disturb (DND)**: Automatically toggles the device's DND mode on during a session and off when finished (requires user permission).
 
-## Tech Stack
+### 2. Analytics & Insights
+- **Interactive Charts**: Beautiful, smooth bezier line charts with gradient fills displaying past focus sessions (powered by MPAndroidChart).
+- **Study Metrics**: Tracks total session durations, environmental scores, and historical data.
 
-*   **Platform:** Android (Minimum SDK 24+)
-*   **Language:** Java
-*   **Architecture:** UI + Background Handlers + Local Storage
-*   **Local Database:** [Room Persistence Library](https://developer.android.com/training/data-storage/room)
-*   **UI Components:** XML ConstraintLayout, Material Design Components (Bottom Sheets, Material Buttons, custom drawables)
-*   **Hardware APIs:** `MediaRecorder` (Audio Amplitude), `SensorManager` (Light Sensor)
+### 3. Gamification & Achievements
+- **Unlockable Badges**: Earn achievements based on lifetime focus hours, environmental scores, and consistency.
+- **Custom Notifications**: Unique dark-themed Toast notifications pop up when a new badge is unlocked.
+- **Progress Tracking**: Detailed bottom sheets show exact progress (e.g., "112 / 100 hrs").
+
+### 4. Settings & Data Management
+- **Customizable Thresholds**: Set personalized limits for maximum tolerable noise and minimum required light via interactive bottom sheets.
+- **Data Export**: Dump your entire session history to a `.csv` file in your device's Downloads folder for external analysis.
+- **Data Control**: Completely wipe the local database and reset your progress at any time.
+
+## Technical Architecture
+
+- **Language & UI**: Java, Modern XML Layouts, Material Design Components (`BottomNavigationView`, `BottomSheetDialogFragment`).
+- **Navigation**: Optimized Fragment Transactions (`add()`, `hide()`, `show()`) to preserve the `TrackingService` state across the app.
+- **Local Storage**: 
+  - **Room Database**: Robust SQLite abstraction (`FocusSessionDao`) for querying aggregated lifetime stats and session history.
+  - **SharedPreferences**: Lightweight key-value storage for user settings, visual preferences, and badge unlock states.
+- **System Services**: `NotificationManager` integration for DND profile access.
+- **File I/O**: Native Java `FileWriter` for CSV generation.
+
+## Upcoming: Multiplayer & Community
+*This project is currently staging for Phase 2 development.*
+The next iteration will introduce a **Community Tab** powered by Firebase. Users will be able to:
+- Sync progress and achievements to the cloud.
+- View leaderboards and compare environmental scores with friends.
+- Join cooperative global focus sessions.
 
 ## Getting Started
 
 ### Prerequisites
-*   Android Studio (Latest Version Recommended)
-*   An Android physical device or emulator (Note: A physical device is highly recommended to accurately test the microphone and light sensors).
+- Android Studio Ladybug (or newer recommended)
+- Minimum SDK: API 24 (Android 7.0)
+- Target SDK: API 34 (Android 14)
+- A physical Android device (highly recommended for sensor accuracy)
 
 ### Installation
-1.  Clone the repository:
-    ```bash
-    git clone https://github.com/yourusername/EnviroSense.git
-    ```
-2.  Open the project in Android Studio.
-3.  Sync the Gradle files to download the required dependencies (Room DB, Material Components).
-4.  Build and run the application on your connected device.
 
-## Permissions
-
-The app strictly prioritizes privacy and performs all hardware processing locally. It requires the following permissions:
-*   `RECORD_AUDIO`: Used *only* to read the maximum amplitude of ambient sound to calculate decibel levels. No audio is ever recorded, saved, or transmitted.
-
-## Roadmap (Upcoming Features)
-
-*   [ ] **Analytics Dashboard:** A dedicated tab to view historical session trends, charts, and average scores per location.
-*   [ ] **Settings & Customization:** Allow users to define their own custom "Optimal Thresholds" for noise and light.
-*   [ ] **Geocoded Locations:** Implement `FusedLocationProviderClient` to auto-tag sessions with real-world locations (e.g., "Library", "Coffee Shop").
-*   [ ] **Auto-Calibration:** Smart algorithms that learn from your best historical sessions to suggest your ideal environmental settings.
-
----
-*Built with focus, Built for better focus.*
-``` 🎯 Focus and Productivity.*
+1. **Clone the repository**
+   Open your terminal or command prompt and run:
+   ```bash
+   git clone https://github.com/your-username/EnviroSense.git
+   cd EnviroSense
