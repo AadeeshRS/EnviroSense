@@ -40,6 +40,7 @@ public class HomeFragment extends Fragment implements SensorEventListener {
     public enum HomeState {
         DEFAULT, FIRST_LAUNCH, ACTIVE_SESSION, NOISE_ALERT, SESSION_ENDED, POOR_ENVIRONMENT
     }
+
     private SensorManager sensorManager;
     private Sensor lightSensor;
     private MediaRecorder mediaRecorder;
@@ -119,7 +120,7 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         tvScoreLabel.setVisibility(View.GONE);
         cardOptimalConditions.setVisibility(View.GONE);
 
-        
+
         sensorManager = (SensorManager) requireActivity().getSystemService(Context.SENSOR_SERVICE);
         if (sensorManager != null) {
             lightSensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
@@ -127,7 +128,7 @@ public class HomeFragment extends Fragment implements SensorEventListener {
 
         btnStart.setOnClickListener(v -> {
             if (cardCurrentEnv.getVisibility() == View.VISIBLE) {
-               
+
                 updateUi(HomeState.SESSION_ENDED);
             } else {
                 checkPermissionsAndStart();
@@ -270,7 +271,7 @@ public class HomeFragment extends Fragment implements SensorEventListener {
                 cumulativeScore += instantaneousScore;
                 sampleCount++;
 
-                currentPeakScore = Math.max(currentPeakScore, (int)instantaneousScore);
+                currentPeakScore = Math.max(currentPeakScore, (int) instantaneousScore);
                 cumulativeNoise += displayDb;
                 cumulativeLight += currentLux;
                 if (displayDb > 60) {
@@ -314,22 +315,25 @@ public class HomeFragment extends Fragment implements SensorEventListener {
             }
         }
     };
+
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
             currentLux = event.values[0];
-            if (tvActiveLight != null) tvActiveLight.setText("✓ " + (int)currentLux + " lux");
+            if (tvActiveLight != null) tvActiveLight.setText("✓ " + (int) currentLux + " lux");
         }
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) { }
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         stopTrackingSensors();
     }
+
     @Override
     public void onHiddenChanged(boolean hidden) {
         super.onHiddenChanged(hidden);
@@ -444,30 +448,37 @@ public class HomeFragment extends Fragment implements SensorEventListener {
             SessionCompleteBottomSheet bottomSheet = new SessionCompleteBottomSheet(
                     finalScore,
                     realDuration,
-                    "Home", // Default placeholder
+                    "Home",
                     new SessionCompleteBottomSheet.OnAnalyticsButtonClickListener() {
                         @Override
                         public void onAnalyticsClicked(String finalLocation) {
-                            saveSession(finalScore, elapsedMillis, finalLocation);
-                            BottomNavigationView navView = requireActivity().findViewById(R.id.bottom_nav);
-                            if (navView != null) navView.setSelectedItemId(R.id.navigation_analytics);
+                            saveSession(finalScore, elapsedMillis, finalLocation, () -> {
+                                BottomNavigationView navView = requireActivity().findViewById(R.id.bottom_nav);
+                                if (navView != null) navView.setSelectedItemId(R.id.navigation_analytics);
+                            });
                         }
 
                         @Override
                         public void onDoneClicked(String finalLocation) {
-                            saveSession(finalScore, elapsedMillis, finalLocation);
+                            saveSession(finalScore, elapsedMillis, finalLocation,null);
                         }
                     }
             );
             bottomSheet.show(getParentFragmentManager(), "SessionCompleteBottomSheet");
         }
     }
-    private void saveSession(int score, long durationMs, String location) {
+
+    private void saveSession(int score, long durationMs, String location, Runnable onSaved) {
         double avgNoise = sampleCount > 0 ? (cumulativeNoise / sampleCount) : 0;
         float avgLight = sampleCount > 0 ? (float) (cumulativeLight / sampleCount) : 0;
 
         FocusSession newSession = new FocusSession(System.currentTimeMillis(), score, durationMs, location, avgNoise, avgLight, currentPeakScore, currentNoiseSpikes);
-        new Thread(() -> AppDatabase.getInstance(requireContext()).focusSessionDao().insert(newSession)).start();
+        new Thread(() -> {
+            AppDatabase.getInstance(requireContext()).focusSessionDao().insert(newSession);
+            // Wait for DB insertion to finish before triggering navigation
+            if (onSaved != null) {
+                requireActivity().runOnUiThread(onSaved);
+            }
+        }).start();
     }
-
 }

@@ -271,4 +271,16 @@ public class AnalyticsFragment extends Fragment {
         lineChart.invalidate();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (!isHidden()) {
+            if (isShowingLocations) {
+                loadLocations();
+            } else {
+                loadSessions();
+            }
+        }
+    }
+
 }
