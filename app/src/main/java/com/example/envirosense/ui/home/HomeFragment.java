@@ -26,6 +26,7 @@ import androidx.fragment.app.Fragment;
 import com.example.envirosense.data.AppDatabase;
 import com.example.envirosense.data.FocusSession;
 import com.example.envirosense.R;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import java.io.IOException;
 import android.widget.ProgressBar;
@@ -62,8 +63,14 @@ public class HomeFragment extends Fragment implements SensorEventListener {
     private TextView tvOptimalNoise, tvOptimalLight, tvOptimalTime;
 
     private double currentLiveScoreEma = -1;
+    private long lastNoiseVibrationTime = 0;
 
-    // Permission Requester
+    private int currentPeakScore = 0;
+    private int currentNoiseSpikes = 0;
+    private double cumulativeNoise = 0;
+    private float cumulativeLight = 0;
+
+
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
@@ -157,6 +164,10 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         sessionStartTime = System.currentTimeMillis();
         cumulativeScore = 0;
         sampleCount = 0;
+        currentPeakScore = 0;
+        currentNoiseSpikes = 0;
+        cumulativeNoise = 0;
+        cumulativeLight = 0;
 
         if (lightSensor != null) {
             sensorManager.registerListener(this, lightSensor, SensorManager.SENSOR_DELAY_NORMAL);
@@ -238,6 +249,13 @@ public class HomeFragment extends Fragment implements SensorEventListener {
                 cumulativeScore += instantaneousScore;
                 sampleCount++;
 
+                currentPeakScore = Math.max(currentPeakScore, (int)instantaneousScore);
+                cumulativeNoise += displayDb;
+                cumulativeLight += currentLux;
+                if (displayDb > 60) {
+                    currentNoiseSpikes++;
+                }
+
                 if (currentLiveScoreEma < 0) {
                     currentLiveScoreEma = instantaneousScore;
                 } else {
@@ -246,18 +264,28 @@ public class HomeFragment extends Fragment implements SensorEventListener {
 
                 int displayScore = (int) Math.round(currentLiveScoreEma);
 
-                // 3. Update the UI
                 if (tvFocusScore != null) tvFocusScore.setText(String.valueOf(displayScore));
                 if (progressFocus != null) progressFocus.setProgress(displayScore);
 
-                // DYNAMIC ALERT BANNER
                 int noiseLimit = 70;
                 if (displayDb > noiseLimit + 10) {
                     if (bannerNoiseAlert.getVisibility() == View.GONE) {
                         bannerNoiseAlert.setVisibility(View.VISIBLE);
+                        if (System.currentTimeMillis() - lastNoiseVibrationTime > 10000) {
+                            android.os.Vibrator vibrator = (android.os.Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
+                            if (vibrator != null && vibrator.hasVibrator()) {
+
+                                vibrator.vibrate(android.os.VibrationEffect.createOneShot(300, android.os.VibrationEffect.DEFAULT_AMPLITUDE));
+                            }
+                            lastNoiseVibrationTime = System.currentTimeMillis();
+                        }
                     }
                     if (tvNoiseAlertDetails != null) {
-                        tvNoiseAlertDetails.setText("Current: " + displayDb + " dB · Limit: " + noiseLimit + " dB");
+                        tvNoiseAlertDetails.setText("Current: " + displayDb + " dB\nLimit: " + noiseLimit + " dB");
+                    }
+                } else {
+                    if (bannerNoiseAlert.getVisibility() == View.VISIBLE) {
+                        bannerNoiseAlert.setVisibility(View.GONE);
                     }
                 }
 
@@ -345,24 +373,53 @@ public class HomeFragment extends Fragment implements SensorEventListener {
             tvFocusScore.setText(String.valueOf(finalScore));
             progressFocus.setProgress(finalScore);
 
+            double avgNoise = sampleCount > 0 ? (cumulativeNoise / sampleCount) : 0;
+            float avgLight = sampleCount > 0 ? (float) (cumulativeLight / sampleCount) : 0;
+
             long elapsedMillis = System.currentTimeMillis() - sessionStartTime;
             FocusSession newSession = new FocusSession(
                     System.currentTimeMillis(),
                     finalScore,
                     elapsedMillis,
-                    "Local Area"
+                    "Local Area",
+                    avgNoise,
+                    avgLight,
+                    currentPeakScore,
+                    currentNoiseSpikes
             );
 
-            new Thread(() -> {
-                AppDatabase.getInstance(requireContext()).focusSessionDao().insert(newSession);
-            }).start();
+
             long minutes = (elapsedMillis / 1000) / 60;
             long seconds = (elapsedMillis / 1000) % 60;
             String realDuration = String.format(java.util.Locale.getDefault(), "%02d:%02d", minutes, seconds);
 
 
-            SessionCompleteBottomSheet bottomSheet = new SessionCompleteBottomSheet(finalScore, realDuration, "Local Area");
+            SessionCompleteBottomSheet bottomSheet = new SessionCompleteBottomSheet(
+                    finalScore,
+                    realDuration,
+                    "Home", // Default placeholder
+                    new SessionCompleteBottomSheet.OnAnalyticsButtonClickListener() {
+                        @Override
+                        public void onAnalyticsClicked(String finalLocation) {
+                            saveSession(finalScore, elapsedMillis, finalLocation);
+                            BottomNavigationView navView = requireActivity().findViewById(R.id.bottom_nav);
+                            if (navView != null) navView.setSelectedItemId(R.id.navigation_analytics);
+                        }
+
+                        @Override
+                        public void onDoneClicked(String finalLocation) {
+                            saveSession(finalScore, elapsedMillis, finalLocation);
+                        }
+                    }
+            );
             bottomSheet.show(getParentFragmentManager(), "SessionCompleteBottomSheet");
         }
+    }
+    private void saveSession(int score, long durationMs, String location) {
+        double avgNoise = sampleCount > 0 ? (cumulativeNoise / sampleCount) : 0;
+        float avgLight = sampleCount > 0 ? (float) (cumulativeLight / sampleCount) : 0;
+
+        FocusSession newSession = new FocusSession(System.currentTimeMillis(), score, durationMs, location, avgNoise, avgLight, currentPeakScore, currentNoiseSpikes);
+        new Thread(() -> AppDatabase.getInstance(requireContext()).focusSessionDao().insert(newSession)).start();
     }
 }

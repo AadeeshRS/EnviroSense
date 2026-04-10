@@ -109,17 +109,16 @@
             android:orientation="vertical"
             android:gravity="center">
 
-            <TextView
-                android:id="@+id/tv_final_location"
+            <EditText
+                android:id="@+id/et_final_location"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Library"
+                android:text="Home"
                 android:textColor="@color/primary_green"
-                app:autoSizeTextType="uniform"
-                app:autoSizeMinTextSize="12sp"
-                app:autoSizeMaxTextSize="28sp"
+                android:textSize="20sp"
                 android:maxLines="1"
+                android:background="@null"
                 android:textStyle="bold" />
 
             <TextView

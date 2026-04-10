@@ -18,6 +18,16 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="24dp" />
 
+    <ImageView
+        android:id="@+id/btn_filter"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@android:drawable/ic_menu_sort_by_size"
+        app:tint="@color/text_secondary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tv_analytics_title"
+        app:layout_constraintBottom_toBottomOf="@id/tv_analytics_title" />
+
     <LinearLayout
         android:id="@+id/toggle_container"
         android:layout_width="match_parent"
@@ -29,6 +39,7 @@
         app:layout_constraintTop_toBottomOf="@id/tv_analytics_title">
 
         <TextView
+            android:id="@+id/tv_tab_sessions"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -41,14 +52,34 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/tv_tab_locations"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:background="@drawable/bg_card_rounded"
+            android:backgroundTint="#00000000"
             android:gravity="center"
             android:padding="8dp"
             android:text="Locations"
             android:textColor="@color/text_secondary" />
     </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/graph_card"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/bg_card_rounded"
+        android:backgroundTint="#161819"
+        app:layout_constraintTop_toBottomOf="@id/toggle_container">
+
+        <com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/line_chart"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="16dp" />
+
+    </FrameLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_sessions"
@@ -56,7 +87,7 @@
         android:layout_height="0dp"
         android:layout_marginTop="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toggle_container" />
+        app:layout_constraintTop_toBottomOf="@id/graph_card" />
 
     <LinearLayout
         android:id="@+id/analytics_empty_state"
@@ -65,8 +96,25 @@
         android:orientation="vertical"
         android:gravity="center"
         android:visibility="gone"
-        app:layout_constraintTop_toTopOf="@id/rv_sessions"
+        app:layout_constraintTop_toBottomOf="@id/graph_card"
         app:layout_constraintBottom_toBottomOf="parent">
+
+        <FrameLayout
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:background="@drawable/bg_circular_progress"
+            android:backgroundTint="#161819"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="∿"
+                android:textColor="@color/primary_green"
+                android:textSize="32sp" />
+        </FrameLayout>
+
 
         <TextView
             android:layout_width="wrap_content"

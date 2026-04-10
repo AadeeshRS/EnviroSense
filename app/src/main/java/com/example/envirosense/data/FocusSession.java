@@ -13,12 +13,22 @@ public class FocusSession {
     public int finalScore;
     public long durationMs;
     public String location;
+    
+   
+    public double avgNoise;
+    public float avgLight;
+    public int peakScore;
+    public int noiseSpikes;
 
-    // Constructor
-    public FocusSession(long timestamp, int finalScore, long durationMs, String location) {
+  
+    public FocusSession(long timestamp, int finalScore, long durationMs, String location, double avgNoise, float avgLight, int peakScore, int noiseSpikes) {
         this.timestamp = timestamp;
         this.finalScore = finalScore;
         this.durationMs = durationMs;
         this.location = location;
+        this.avgNoise = avgNoise;
+        this.avgLight = avgLight;
+        this.peakScore = peakScore;
+        this.noiseSpikes = noiseSpikes;
     }
 }
