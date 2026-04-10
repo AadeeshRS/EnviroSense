@@ -1,7 +1,6 @@
 package com.example.envirosense;
 
 import android.os.Bundle;
-
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -9,15 +8,22 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.envirosense.ui.achievements.AchievementsFragment;
 import com.example.envirosense.ui.home.HomeFragment;
 import com.example.envirosense.ui.analytics.AnalyticsFragment;
+import com.example.envirosense.ui.settings.SettingsFragment; // <-- Import our new Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
     private final Fragment homeFragment = new HomeFragment();
     private final Fragment analyticsFragment = new AnalyticsFragment();
+    private final Fragment settingsFragment = new SettingsFragment();
+
+    private final Fragment achievementsFragment =  new AchievementsFragment();
+
     private Fragment activeFragment = homeFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,7 +38,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
+                    .add(R.id.fragment_container, settingsFragment, "settings").hide(settingsFragment)
                     .add(R.id.fragment_container, analyticsFragment, "analytics").hide(analyticsFragment)
+                    .add(R.id.fragment_container, achievementsFragment, "achievements").hide(achievementsFragment)
                     .add(R.id.fragment_container, homeFragment, "home")
                     .commit();
         }
@@ -50,8 +58,14 @@ public class MainActivity extends AppCompatActivity {
                 activeFragment = analyticsFragment;
                 return true;
             } else if (itemId == R.id.navigation_settings) {
+                getSupportFragmentManager().beginTransaction().hide(activeFragment).show(settingsFragment).commit();
+                activeFragment = settingsFragment;
                 return true;
-            }
+            } else if (itemId == R.id.navigation_achieve) {
+                getSupportFragmentManager().beginTransaction().hide(activeFragment).show(achievementsFragment).commit();
+                activeFragment = achievementsFragment;
+            return true;
+        }
 
             return false;
         });

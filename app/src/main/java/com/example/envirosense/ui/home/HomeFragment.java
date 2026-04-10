@@ -29,7 +29,11 @@ import com.example.envirosense.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import java.io.IOException;
+import java.util.List;
+
 import android.widget.ProgressBar;
+import android.app.NotificationManager;
+import android.content.SharedPreferences;
 
 public class HomeFragment extends Fragment implements SensorEventListener {
 
@@ -43,6 +47,7 @@ public class HomeFragment extends Fragment implements SensorEventListener {
     private long sessionStartTime = 0;
     private double cumulativeScore = 0;
     private int sampleCount = 0;
+    private boolean wasDndEnabledByUs = false;
 
     private ViewGroup rootLayout;
     private View cardOptimalConditions, cardFirstLaunch, cardCurrentEnv, bannerNoiseAlert, bannerPoorEnv;
@@ -176,6 +181,15 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         startAudioRecording();
 
         handler.post(updateSensorsRunnable);
+
+        SharedPreferences prefs = requireActivity().getSharedPreferences("EnviroSensePrefs", Context.MODE_PRIVATE);
+        if (prefs.getBoolean("dnd_enabled", false)) {
+            NotificationManager nm = (NotificationManager) requireContext().getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nm.isNotificationPolicyAccessGranted()) {
+                nm.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE);
+                wasDndEnabledByUs = true;
+            }
+        }
     }
 
     private void stopTrackingSensors() {
@@ -183,6 +197,13 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         handler.removeCallbacks(updateSensorsRunnable);
         sensorManager.unregisterListener(this);
         stopAudioRecording();
+        if (wasDndEnabledByUs) {
+            NotificationManager nm = (NotificationManager) requireContext().getSystemService(Context.NOTIFICATION_SERVICE);
+            if (nm != null && nm.isNotificationPolicyAccessGranted()) {
+                nm.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL);
+            }
+            wasDndEnabledByUs = false;
+        }
     }
 
     private void startAudioRecording() {
@@ -309,6 +330,32 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         super.onDestroy();
         stopTrackingSensors();
     }
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+
+        if (!hidden) {
+            new Thread(() -> {
+                List<FocusSession> sessions = AppDatabase.getInstance(requireContext())
+                        .focusSessionDao().getAllSessions();
+
+                requireActivity().runOnUiThread(() -> {
+
+                    if (sessions.isEmpty() && !isTracking) {
+
+                        updateUi(HomeState.FIRST_LAUNCH);
+
+                        cumulativeScore = 0;
+                        sampleCount = 0;
+                        currentPeakScore = 0;
+                        currentNoiseSpikes = 0;
+                        cumulativeNoise = 0;
+                        cumulativeLight = 0;
+                    }
+                });
+            }).start();
+        }
+    }
 
     public void updateUi(HomeState state) {
         TransitionManager.beginDelayedTransition(rootLayout);
@@ -422,4 +469,5 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         FocusSession newSession = new FocusSession(System.currentTimeMillis(), score, durationMs, location, avgNoise, avgLight, currentPeakScore, currentNoiseSpikes);
         new Thread(() -> AppDatabase.getInstance(requireContext()).focusSessionDao().insert(newSession)).start();
     }
+
 }

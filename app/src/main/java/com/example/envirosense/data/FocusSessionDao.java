@@ -29,6 +29,9 @@ public interface FocusSessionDao {
     @Query("SELECT location, COUNT(id) as sessionCount, AVG(finalScore) as avgScore FROM focus_sessions WHERE timestamp >= :startTime AND timestamp <= :endTime GROUP BY location ORDER BY sessionCount DESC")
     List<LocationStat> getLocationStatsInRange(long startTime, long endTime);
 
+    @Query("DELETE FROM focus_sessions")
+    void deleteAllSessions();
+
     @Delete
     void delete(FocusSession session);
 
