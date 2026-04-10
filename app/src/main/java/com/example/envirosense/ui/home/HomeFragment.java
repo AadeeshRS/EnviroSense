@@ -26,6 +26,7 @@ import androidx.fragment.app.Fragment;
 import com.example.envirosense.data.AppDatabase;
 import com.example.envirosense.data.FocusSession;
 import com.example.envirosense.R;
+import com.example.envirosense.ui.achievements.AchievementManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import java.io.IOException;
@@ -475,6 +476,9 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         FocusSession newSession = new FocusSession(System.currentTimeMillis(), score, durationMs, location, avgNoise, avgLight, currentPeakScore, currentNoiseSpikes);
         new Thread(() -> {
             AppDatabase.getInstance(requireContext()).focusSessionDao().insert(newSession);
+            
+            AchievementManager.checkUnlocks(requireContext());
+            
             // Wait for DB insertion to finish before triggering navigation
             if (onSaved != null) {
                 requireActivity().runOnUiThread(onSaved);

@@ -28,7 +28,8 @@ public class AchievementsFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_achievements, container, false);
 
         tvTotalHours = view.findViewById(R.id.tv_total_hours);
@@ -50,13 +51,7 @@ public class AchievementsFragment extends Fragment {
     }
 
     private void initBadges() {
-        allBadges = new ArrayList<>();
-
-        allBadges.add(new Achievement(1, "First Focus", "Complete 1st session", "Complete your first ever focus session. Welcome to the club!", 1, android.R.drawable.btn_star));
-        allBadges.add(new Achievement(2, "Consistent", "Reach 25 focus hours", "Consistency is key. You've hit 25 hours of deep work.", 25, android.R.drawable.ic_menu_recent_history));
-        allBadges.add(new Achievement(3, "Focused Mind", "Reach 50 focus hours", "A focused mind achieves the impossible. Halfway to 100!", 50, android.R.drawable.ic_menu_view));
-        allBadges.add(new Achievement(4, "Deep Worker", "Reach 100 focus hours", "100 hours of focused work in optimal environments. You're in rare company.", 100, android.R.drawable.ic_dialog_email));
-        allBadges.add(new Achievement(5, "EnviroMaster", "Maintain 90+ Score", "Master of your environment. You consistently maintain optimal conditions.", 500, android.R.drawable.ic_menu_sort_by_size));
+        allBadges = AchievementManager.getBadges();
     }
 
     private void calculateTotalHours() {
@@ -70,7 +65,6 @@ public class AchievementsFragment extends Fragment {
                 totalAccumulatedScore += s.finalScore;
             }
 
-
             int finalTotalHours = (int) ((totalDurationMs / 1000) / 60) / 60;
 
             final double lifetimeAverageScore;
@@ -83,7 +77,6 @@ public class AchievementsFragment extends Fragment {
                 finalTotalHours = 1;
             }
 
-
             boolean USE_SIMULATION = false;
             int SIMULATED_HOURS = 500;
             if (USE_SIMULATION) {
@@ -95,7 +88,8 @@ public class AchievementsFragment extends Fragment {
             requireActivity().runOnUiThread(() -> {
                 tvTotalHours.setText(String.valueOf(displayHours));
 
-                android.content.SharedPreferences prefs = requireActivity().getSharedPreferences("EnviroSenseAchieve", android.content.Context.MODE_PRIVATE);
+                android.content.SharedPreferences prefs = requireActivity().getSharedPreferences("EnviroSenseAchieve",
+                        android.content.Context.MODE_PRIVATE);
 
                 for (Achievement badge : allBadges) {
 
@@ -106,8 +100,7 @@ public class AchievementsFragment extends Fragment {
                         } else {
                             badge.isUnlocked = false;
                         }
-                    }
-                    else {
+                    } else {
                         badge.currentProgressHrs = (int) lifetimeAverageScore;
                         badge.targetHours = 90;
                         badge.isUnlocked = lifetimeAverageScore >= 90.0 && sessions.size() >= 10;
@@ -116,13 +109,11 @@ public class AchievementsFragment extends Fragment {
                     if (badge.isUnlocked) {
                         boolean hasShownToastBefore = prefs.getBoolean("toast_shown_" + badge.id, false);
                         if (!hasShownToastBefore) {
-                            showCustomAchievementToast(badge);
                             prefs.edit().putBoolean("toast_shown_" + badge.id, true).apply();
                         }
                     } else {
                         prefs.edit().putBoolean("toast_shown_" + badge.id, false).apply();
                     }
-
 
                 }
 
@@ -130,25 +121,6 @@ public class AchievementsFragment extends Fragment {
             });
 
         }).start();
-    }
-
-    private void showCustomAchievementToast(Achievement badge) {
-        LayoutInflater inflater = getLayoutInflater();
-        View layout = inflater.inflate(R.layout.toast_achievement, null);
-
-        ImageView icon = layout.findViewById(R.id.toast_icon);
-        TextView title = layout.findViewById(R.id.toast_title);
-        TextView desc = layout.findViewById(R.id.toast_desc);
-
-        icon.setImageResource(badge.iconResId);
-        title.setText(badge.title + " unlocked");
-        desc.setText(badge.longDescription);
-
-        android.widget.Toast toast = new android.widget.Toast(requireContext());
-        toast.setGravity(android.view.Gravity.BOTTOM | android.view.Gravity.CENTER_HORIZONTAL, 0, 200);
-        toast.setDuration(android.widget.Toast.LENGTH_LONG);
-        toast.setView(layout);
-        toast.show();
     }
 
     @Override
