@@ -74,6 +74,7 @@ public class AnalyticsFragment extends Fragment {
                         public void onDeleteClicked(FocusSession sessionToDelete) {
                             new Thread(() -> {
                                 AppDatabase.getInstance(requireContext()).focusSessionDao().delete(sessionToDelete);
+                                com.example.envirosense.ui.achievements.AchievementManager.checkUnlocks(requireContext());
                                 if (isShowingLocations) {
                                     loadLocations();
                                 } else {
@@ -192,6 +193,7 @@ public class AnalyticsFragment extends Fragment {
                     rvSessions.setVisibility(View.VISIBLE);
                     sessionAdapter.submitList(sessions, () -> {
                         rvSessions.scrollToPosition(0);
+                        sessionAdapter.notifyDataSetChanged();
                     });
                     updateChartData(sessions);
                 } else {

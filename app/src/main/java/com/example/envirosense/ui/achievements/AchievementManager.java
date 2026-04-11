@@ -87,6 +87,8 @@ public class AchievementManager {
                         }, currentDelay);
 
                         delayMs += 4000;
+                    }else {
+                        prefs.edit().putBoolean("toast_shown_" + badge.id, false).apply();
                     }
                 }
 

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "68067262913",
+    "project_id": "envirosense-988ec",
+    "storage_bucket": "envirosense-988ec.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:68067262913:android:6e71b47bc800bdcd846f40",
+        "android_client_info": {
+          "package_name": "com.example.envirosense"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdwJnmpaDiceDC_ZtquFP8-D1ccKE_ZuU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

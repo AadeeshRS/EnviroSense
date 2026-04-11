@@ -34,7 +34,9 @@ public class SessionAdapter extends ListAdapter<FocusSession, SessionAdapter.Ses
             @Override
             public boolean areContentsTheSame(@NonNull FocusSession oldItem, @NonNull FocusSession newItem) {
                 return oldItem.timestamp == newItem.timestamp &&
-                        oldItem.finalScore == newItem.finalScore;
+                        oldItem.finalScore == newItem.finalScore &&
+                        oldItem.durationMs == newItem.durationMs &&
+                        (oldItem.location != null ? oldItem.location.equals(newItem.location) : newItem.location == null);
             }
         });
         this.listener = listener;

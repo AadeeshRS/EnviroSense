@@ -50,6 +50,10 @@ public class DeleteConfirmDialog extends DialogFragment {
 
                 requireActivity().runOnUiThread(() -> {
                     Toast.makeText(getContext(), "Data permanently erased", Toast.LENGTH_SHORT).show();
+                    androidx.fragment.app.Fragment homeFrag = getParentFragmentManager().findFragmentByTag("home");
+                    if (homeFrag instanceof com.example.envirosense.ui.home.HomeFragment) {
+                        ((com.example.envirosense.ui.home.HomeFragment) homeFrag).updateUi(com.example.envirosense.ui.home.HomeFragment.HomeState.FIRST_LAUNCH);
+                    }
                     if (listener != null) listener.onDataDeleted();
                     dismiss();
                 });
