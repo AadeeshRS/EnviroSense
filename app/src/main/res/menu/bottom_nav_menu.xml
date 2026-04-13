@@ -9,6 +9,10 @@
         android:icon="@drawable/ic_analytics"
         android:title="Analytics" />
     <item
+        android:id="@+id/navigation_community"
+        android:icon="@drawable/ic_community"
+        android:title="Community" />
+    <item
         android:id="@+id/navigation_achieve"
         android:icon="@drawable/ic_achieve"
         android:title="Achieve" />

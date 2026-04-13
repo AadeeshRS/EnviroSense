@@ -27,7 +27,6 @@ import com.example.envirosense.data.AppDatabase;
 import com.example.envirosense.data.FocusSession;
 import com.example.envirosense.R;
 import com.example.envirosense.ui.achievements.AchievementManager;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.button.MaterialButton;
 import java.io.IOException;
 import java.util.List;
@@ -77,19 +76,20 @@ public class HomeFragment extends Fragment implements SensorEventListener {
     private double cumulativeNoise = 0;
     private float cumulativeLight = 0;
 
-
-    private final ActivityResultLauncher<String> requestPermissionLauncher =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+    private final ActivityResultLauncher<String> requestPermissionLauncher = registerForActivityResult(
+            new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
                     startTrackingSensors();
                 } else {
-                    Toast.makeText(getContext(), "Microphone permission required for Focus Score", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Microphone permission required for Focus Score", Toast.LENGTH_SHORT)
+                            .show();
                     updateUi(HomeState.DEFAULT); // rollback
                 }
             });
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         rootLayout = (ViewGroup) view;
 
@@ -120,7 +120,6 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         focusRingContainer.setVisibility(View.GONE);
         tvScoreLabel.setVisibility(View.GONE);
         cardOptimalConditions.setVisibility(View.GONE);
-
 
         sensorManager = (SensorManager) requireActivity().getSystemService(Context.SENSOR_SERVICE);
         if (sensorManager != null) {
@@ -158,7 +157,8 @@ public class HomeFragment extends Fragment implements SensorEventListener {
     }
 
     private void checkPermissionsAndStart() {
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(requireContext(),
+                Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
             startTrackingSensors();
         } else {
             requestPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO);
@@ -186,7 +186,8 @@ public class HomeFragment extends Fragment implements SensorEventListener {
 
         SharedPreferences prefs = requireActivity().getSharedPreferences("EnviroSensePrefs", Context.MODE_PRIVATE);
         if (prefs.getBoolean("dnd_enabled", false)) {
-            NotificationManager nm = (NotificationManager) requireContext().getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationManager nm = (NotificationManager) requireContext()
+                    .getSystemService(Context.NOTIFICATION_SERVICE);
             if (nm.isNotificationPolicyAccessGranted()) {
                 nm.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE);
                 wasDndEnabledByUs = true;
@@ -200,7 +201,8 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         sensorManager.unregisterListener(this);
         stopAudioRecording();
         if (wasDndEnabledByUs) {
-            NotificationManager nm = (NotificationManager) requireContext().getSystemService(Context.NOTIFICATION_SERVICE);
+            NotificationManager nm = (NotificationManager) requireContext()
+                    .getSystemService(Context.NOTIFICATION_SERVICE);
             if (nm != null && nm.isNotificationPolicyAccessGranted()) {
                 nm.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_ALL);
             }
@@ -234,13 +236,13 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         }
     }
 
-
     private final Runnable updateSensorsRunnable = new Runnable() {
         @Override
         public void run() {
             if (isTracking && mediaRecorder != null) {
 
-                String currentTime = new java.text.SimpleDateFormat("h:mm a", java.util.Locale.getDefault()).format(new java.util.Date());
+                String currentTime = new java.text.SimpleDateFormat("h:mm a", java.util.Locale.getDefault())
+                        .format(new java.util.Date());
                 if (tvActiveTime != null) {
                     tvActiveTime.setText("✓ " + currentTime);
                 }
@@ -253,7 +255,8 @@ public class HomeFragment extends Fragment implements SensorEventListener {
 
                 int displayDb = (int) Math.max(30, db);
 
-                if (tvActiveNoise != null) tvActiveNoise.setText("✓ " + displayDb + " dB");
+                if (tvActiveNoise != null)
+                    tvActiveNoise.setText("✓ " + displayDb + " dB");
 
                 double noiseScore = 100;
                 if (displayDb > 60) {
@@ -287,18 +290,22 @@ public class HomeFragment extends Fragment implements SensorEventListener {
 
                 int displayScore = (int) Math.round(currentLiveScoreEma);
 
-                if (tvFocusScore != null) tvFocusScore.setText(String.valueOf(displayScore));
-                if (progressFocus != null) progressFocus.setProgress(displayScore);
+                if (tvFocusScore != null)
+                    tvFocusScore.setText(String.valueOf(displayScore));
+                if (progressFocus != null)
+                    progressFocus.setProgress(displayScore);
 
                 int noiseLimit = 70;
                 if (displayDb > noiseLimit + 10) {
                     if (bannerNoiseAlert.getVisibility() == View.GONE) {
                         bannerNoiseAlert.setVisibility(View.VISIBLE);
                         if (System.currentTimeMillis() - lastNoiseVibrationTime > 10000) {
-                            android.os.Vibrator vibrator = (android.os.Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
+                            android.os.Vibrator vibrator = (android.os.Vibrator) requireContext()
+                                    .getSystemService(Context.VIBRATOR_SERVICE);
                             if (vibrator != null && vibrator.hasVibrator()) {
 
-                                vibrator.vibrate(android.os.VibrationEffect.createOneShot(300, android.os.VibrationEffect.DEFAULT_AMPLITUDE));
+                                vibrator.vibrate(android.os.VibrationEffect.createOneShot(300,
+                                        android.os.VibrationEffect.DEFAULT_AMPLITUDE));
                             }
                             lastNoiseVibrationTime = System.currentTimeMillis();
                         }
@@ -321,7 +328,8 @@ public class HomeFragment extends Fragment implements SensorEventListener {
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_LIGHT) {
             currentLux = event.values[0];
-            if (tvActiveLight != null) tvActiveLight.setText("✓ " + (int) currentLux + " lux");
+            if (tvActiveLight != null)
+                tvActiveLight.setText("✓ " + (int) currentLux + " lux");
         }
     }
 
@@ -437,14 +445,11 @@ public class HomeFragment extends Fragment implements SensorEventListener {
                     avgNoise,
                     avgLight,
                     currentPeakScore,
-                    currentNoiseSpikes
-            );
-
+                    currentNoiseSpikes);
 
             long minutes = (elapsedMillis / 1000) / 60;
             long seconds = (elapsedMillis / 1000) % 60;
             String realDuration = String.format(java.util.Locale.getDefault(), "%02d:%02d", minutes, seconds);
-
 
             SessionCompleteBottomSheet bottomSheet = new SessionCompleteBottomSheet(
                     finalScore,
@@ -454,17 +459,17 @@ public class HomeFragment extends Fragment implements SensorEventListener {
                         @Override
                         public void onAnalyticsClicked(String finalLocation) {
                             saveSession(finalScore, elapsedMillis, finalLocation, () -> {
-                                BottomNavigationView navView = requireActivity().findViewById(R.id.bottom_nav);
-                                if (navView != null) navView.setSelectedItemId(R.id.navigation_analytics);
+                                if (requireActivity() instanceof com.example.envirosense.MainActivity) {
+                                    ((com.example.envirosense.MainActivity) requireActivity()).navigateToAnalytics();
+                                }
                             });
                         }
 
                         @Override
                         public void onDoneClicked(String finalLocation) {
-                            saveSession(finalScore, elapsedMillis, finalLocation,null);
+                            saveSession(finalScore, elapsedMillis, finalLocation, null);
                         }
-                    }
-            );
+                    });
             bottomSheet.show(getParentFragmentManager(), "SessionCompleteBottomSheet");
         }
     }
@@ -473,12 +478,13 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         double avgNoise = sampleCount > 0 ? (cumulativeNoise / sampleCount) : 0;
         float avgLight = sampleCount > 0 ? (float) (cumulativeLight / sampleCount) : 0;
 
-        FocusSession newSession = new FocusSession(System.currentTimeMillis(), score, durationMs, location, avgNoise, avgLight, currentPeakScore, currentNoiseSpikes);
+        FocusSession newSession = new FocusSession(System.currentTimeMillis(), score, durationMs, location, avgNoise,
+                avgLight, currentPeakScore, currentNoiseSpikes);
         new Thread(() -> {
             AppDatabase.getInstance(requireContext()).focusSessionDao().insert(newSession);
-            
+
             AchievementManager.checkUnlocks(requireContext());
-            
+
             // Wait for DB insertion to finish before triggering navigation
             if (onSaved != null) {
                 requireActivity().runOnUiThread(onSaved);

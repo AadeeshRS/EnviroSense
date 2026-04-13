@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_bottom_sheet"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <!-- Drag handle -->
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="24dp"
+        android:background="#333333" />
+
+    <!-- Header: emoji + name row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:id="@+id/tv_sheet_emoji"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:background="@drawable/bg_circular_progress"
+            android:backgroundTint="#2A2C2E"
+            android:gravity="center"
+            android:text="📚"
+            android:textSize="26sp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_sheet_group_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Library Legends"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_sheet_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="Daily study sessions at the campus library"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp"
+                android:maxLines="2"
+                android:ellipsize="end" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Subject chips (scrollable) -->
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:scrollbars="none"
+        android:fadingEdgeLength="16dp"
+        android:requiresFadingEdge="horizontal">
+
+        <LinearLayout
+            android:id="@+id/sheet_subject_rows"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+    </HorizontalScrollView>
+
+    <!-- Stats divider list -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#333333" />
+
+        <!-- Members -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:paddingVertical="14dp">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:text="Members"
+                android:textColor="@color/text_secondary" android:textSize="14sp" />
+            <TextView android:id="@+id/tv_sheet_members" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="12"
+                android:textColor="@color/white" android:textSize="14sp" android:textStyle="bold" />
+        </LinearLayout>
+
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#333333" />
+
+        <!-- Active Members -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:paddingVertical="14dp">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:text="Active now"
+                android:textColor="@color/text_secondary" android:textSize="14sp" />
+            <TextView android:id="@+id/tv_sheet_active" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="5"
+                android:textColor="@color/primary_green" android:textSize="14sp" android:textStyle="bold" />
+        </LinearLayout>
+
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#333333" />
+
+        <!-- Total Focus Hours -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:paddingVertical="14dp">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:text="Total focus hours"
+                android:textColor="@color/text_secondary" android:textSize="14sp" />
+            <TextView android:id="@+id/tv_sheet_hours" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="340 hrs"
+                android:textColor="@color/white" android:textSize="14sp" android:textStyle="bold" />
+        </LinearLayout>
+
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#333333" />
+
+        <!-- Avg Focus Score -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:paddingVertical="14dp">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:text="Avg. focus score"
+                android:textColor="@color/text_secondary" android:textSize="14sp" />
+            <TextView android:id="@+id/tv_sheet_avg_score" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="78"
+                android:textColor="@color/primary_green" android:textSize="14sp" android:textStyle="bold" />
+        </LinearLayout>
+
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#333333" />
+
+        <!-- Creation Date -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:paddingVertical="14dp">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:text="Created"
+                android:textColor="@color/text_secondary" android:textSize="14sp" />
+            <TextView android:id="@+id/tv_sheet_created" android:layout_width="wrap_content"
+                android:layout_height="wrap_content" android:text="Jan 15, 2026"
+                android:textColor="@color/white" android:textSize="14sp" android:textStyle="bold" />
+        </LinearLayout>
+
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#333333" />
+    </LinearLayout>
+
+    <!-- Join CTA button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_join_group"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="24dp"
+        android:text="Join Group"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:backgroundTint="@color/primary_green"
+        app:cornerRadius="28dp" />
+
+</LinearLayout>
