@@ -46,13 +46,14 @@ public class SessionDetailBottomSheet extends BottomSheetDialogFragment {
         EditText etLocation = view.findViewById(R.id.et_edit_location);
 
         tvScore.setText(String.valueOf(session.finalScore));
-        long minutes = session.durationMs / (1000 * 60);
+        
+        String durationStr = formatDuration(session.durationMs);
 
         SimpleDateFormat sdfDate = new SimpleDateFormat("MMM d, h:mm a", Locale.getDefault());
         tvHeaderDateTime.setText(sdfDate.format(new Date(session.timestamp)));
 
         String locationStr = (session.location != null && !session.location.trim().isEmpty()) ? session.location : "Local Area";
-        tvHeaderDesc.setText(locationStr + " · " + minutes + " min");
+        tvHeaderDesc.setText(locationStr + " · " + durationStr);
 
         if (session.location != null) {
             etLocation.setText(session.location);
@@ -77,5 +78,19 @@ public class SessionDetailBottomSheet extends BottomSheetDialogFragment {
         });
 
         return view;
+    }
+
+    private String formatDuration(long durationMs) {
+        long seconds = durationMs / 1000;
+        long minutes = seconds / 60;
+        long hours = minutes / 60;
+
+        if (hours > 0) {
+            return String.format(Locale.getDefault(), "%dh %dm %ds", hours, minutes % 60, seconds % 60);
+        } else if (minutes > 0) {
+            return String.format(Locale.getDefault(), "%dm %ds", minutes, seconds % 60);
+        } else {
+            return String.format(Locale.getDefault(), "%ds", seconds);
+        }
     }
 }

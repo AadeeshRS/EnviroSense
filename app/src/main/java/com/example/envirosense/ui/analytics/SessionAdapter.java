@@ -59,14 +59,28 @@ public class SessionAdapter extends ListAdapter<FocusSession, SessionAdapter.Ses
         SimpleDateFormat sdf = new SimpleDateFormat("MMM d, h:mm a", Locale.getDefault());
         holder.tvDatetime.setText(sdf.format(new Date(session.timestamp)));
 
-        long minutes = session.durationMs / (1000 * 60);
-        holder.tvDetails.setText(minutes + " min · " + session.location);
+        String durationStr = formatDuration(session.durationMs);
+        holder.tvDetails.setText(durationStr + " · " + session.location);
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
                 listener.onItemClick(session);
             }
         });
+    }
+
+    private String formatDuration(long durationMs) {
+        long seconds = durationMs / 1000;
+        long minutes = seconds / 60;
+        long hours = minutes / 60;
+
+        if (hours > 0) {
+            return String.format(Locale.getDefault(), "%dh %dm %ds", hours, minutes % 60, seconds % 60);
+        } else if (minutes > 0) {
+            return String.format(Locale.getDefault(), "%dm %ds", minutes, seconds % 60);
+        } else {
+            return String.format(Locale.getDefault(), "%ds", seconds);
+        }
     }
 
     public static class SessionViewHolder extends RecyclerView.ViewHolder {
