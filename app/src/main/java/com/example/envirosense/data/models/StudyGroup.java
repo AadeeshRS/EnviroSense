@@ -30,4 +30,17 @@ public class StudyGroup {
         this.activeMembers = activeMembers;
         this.creationDate = creationDate;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StudyGroup that = (StudyGroup) o;
+        return groupName != null ? groupName.equals(that.groupName) : that.groupName == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return groupName != null ? groupName.hashCode() : 0;
+    }
 }

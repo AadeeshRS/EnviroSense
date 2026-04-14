@@ -20,7 +20,7 @@ import java.util.List;
 
 public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.ViewHolder> {
 
-    private final List<StudyGroup> items;
+    private List<StudyGroup> items;
     private final FragmentManager fragmentManager;
 
     // Curated chip colors — muted tones that match the dark UI
@@ -113,6 +113,15 @@ public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.ViewHolder
     @Override
     public int getItemCount() {
         return items.size();
+    }
+
+    /**
+     * Replaces the current dataset and refreshes the list.
+     * Used by SearchCommunityFragment for live filtering.
+     */
+    public void updateData(List<StudyGroup> newItems) {
+        this.items = newItems;
+        notifyDataSetChanged();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {

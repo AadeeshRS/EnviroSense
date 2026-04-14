@@ -9,9 +9,9 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.envirosense.R;
 import com.example.envirosense.data.models.StudyGroup;
@@ -73,12 +73,29 @@ public class GroupDetailBottomSheet extends BottomSheetDialogFragment {
         tvAvgScore.setText(String.valueOf(group.avgScore));
         tvCreated.setText(group.creationDate);
 
-        // Join button
+        // Check ViewModel for current state
+        CommunityViewModel viewModel = new ViewModelProvider(requireActivity()).get(CommunityViewModel.class);
+        boolean isJoined = viewModel.isGroupJoined(group);
+
+        // Join/Leave button logic
         MaterialButton btnJoin = view.findViewById(R.id.btn_join_group);
-        btnJoin.setOnClickListener(v -> {
-            Toast.makeText(requireContext(), "Joined " + group.groupName + "!", Toast.LENGTH_SHORT).show();
-            dismiss();
-        });
+        if (isJoined) {
+            btnJoin.setText("Leave Group");
+            // Optional styling for a leave button: red or outlined
+            // For now, keep it simple by just changing the text
+            btnJoin.setOnClickListener(v -> {
+                viewModel.leaveGroup(group);
+                Toast.makeText(requireContext(), "Left " + group.groupName, Toast.LENGTH_SHORT).show();
+                dismiss();
+            });
+        } else {
+            btnJoin.setText("Join Group");
+            btnJoin.setOnClickListener(v -> {
+                viewModel.joinGroup(group);
+                Toast.makeText(requireContext(), "Joined " + group.groupName + "!", Toast.LENGTH_SHORT).show();
+                dismiss();
+            });
+        }
 
         return view;
     }

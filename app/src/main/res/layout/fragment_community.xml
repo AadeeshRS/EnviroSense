@@ -66,66 +66,15 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Tab toggle (same pattern as Analytics) -->
-    <LinearLayout
-        android:id="@+id/community_toggle_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:background="#161819"
-        android:orientation="horizontal"
-        android:padding="4dp"
-        app:layout_constraintTop_toBottomOf="@id/card_your_rank">
-
-        <TextView
-            android:id="@+id/tv_tab_leaderboard"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/bg_card_rounded"
-            android:backgroundTint="#2A2C2E"
-            android:gravity="center"
-            android:padding="10dp"
-            android:text="Leaderboard"
-            android:textColor="@color/white"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/tv_tab_groups"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/bg_card_rounded"
-            android:backgroundTint="#00000000"
-            android:gravity="center"
-            android:padding="10dp"
-            android:text="Groups"
-            android:textColor="@color/text_secondary"
-            android:textSize="14sp" />
-    </LinearLayout>
-
     <!-- Leaderboard RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_leaderboard"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="20dp"
         android:clipToPadding="false"
         android:paddingBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/community_toggle_container" />
-
-    <!-- Groups RecyclerView (hidden by default) -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_groups"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:clipToPadding="false"
-        android:paddingBottom="16dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/community_toggle_container" />
+        app:layout_constraintTop_toBottomOf="@id/card_your_rank" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
