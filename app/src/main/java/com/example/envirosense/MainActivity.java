@@ -101,14 +101,20 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
-        // Setup Navigation Drawer
+    
         navView = findViewById(R.id.nav_view);
         navView.setNavigationItemSelectedListener(item -> {
             if (isSyncing)
                 return true;
             isSyncing = true;
-            switchFragment(item.getItemId());
-            bottomNav.setSelectedItemId(item.getItemId());
+            int id = item.getItemId();
+            if (id == R.id.navigation_settings) {
+
+                switchFragment(id);
+            } else {
+                switchFragment(id);
+                bottomNav.setSelectedItemId(id);
+            }
             drawerLayout.closeDrawer(GravityCompat.START);
             isSyncing = false;
             return true;

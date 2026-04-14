@@ -16,8 +16,4 @@
         android:id="@+id/navigation_achieve"
         android:icon="@drawable/ic_achieve"
         android:title="Achieve" />
-    <item
-        android:id="@+id/navigation_settings"
-        android:icon="@drawable/ic_settings"
-        android:title="Settings" />
 </menu>

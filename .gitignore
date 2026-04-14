@@ -24,3 +24,7 @@ local.properties
 # NEW: Prevent security keys from being leaked
 *.jks
 *.keystore
+
+# NEW: Local planning and AI prompt files
+firebase_plan.md
+gemini_firebase_prompt.md

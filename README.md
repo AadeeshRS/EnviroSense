@@ -20,13 +20,13 @@ EnviroSense is a productivity and environmental tracking Android application des
 
 ### 4. Settings & Data Management
 - **Customizable Thresholds**: Set personalized limits for maximum tolerable noise and minimum required light via interactive bottom sheets.
-- **Data Export**: Dump your entire session history to a `.csv` file in your device's Downloads folder for external analysis.
+- **Data Export**: Dump your entire session history to a `.csv` file directly using `MediaStore` API (safely compatible with Android 10+ without dangerous storage permissions).
 - **Data Control**: Completely wipe the local database and reset your progress at any time.
 
 ## Technical Architecture
 
 - **Language & UI**: Java, Modern XML Layouts, Material Design Components (`BottomNavigationView`, `BottomSheetDialogFragment`).
-- **Navigation**: Optimized Fragment Transactions (`add()`, `hide()`, `show()`) to preserve the `TrackingService` state across the app.
+- **Navigation**: Structured using a dual-navigation approach: `BottomNavigationView` for core tabs and a `NavigationView` (Hamburger Drawer) for Settings & Profile. Optimized Fragment Transactions (`add()`, `hide()`, `show()`) to preserve state, and backstack navigation for sub-screens.
 - **Local Storage**: 
   - **Room Database**: Robust SQLite abstraction (`FocusSessionDao`) for querying aggregated lifetime stats and session history.
   - **SharedPreferences**: Lightweight key-value storage for user settings, visual preferences, and badge unlock states.
@@ -34,11 +34,11 @@ EnviroSense is a productivity and environmental tracking Android application des
 - **File I/O**: Native Java `FileWriter` for CSV generation.
 
 ## Upcoming: Multiplayer & Community
-*This project is currently staging for Phase 2 development.*
-The next iteration will introduce a **Community Tab** powered by Firebase. Users will be able to:
-- Sync progress and achievements to the cloud.
-- View leaderboards and compare environmental scores with friends.
-- Join cooperative global focus sessions.
+*This project is actively transitioning to Phase 2 (Firebase Integration).*
+Recently added a fully prototyped **Community Tab**, navigation drawer, and Profile editing screen. Next steps include wiring up Firestore to:
+- Sync user profiles, sessions, and achievements to the cloud.
+- Power the real-time Community Leaderboard.
+- Enable joining cooperative Study Groups.
 
 ## Getting Started
 
