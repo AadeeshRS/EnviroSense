@@ -39,10 +39,15 @@ public class MyCommunityFragment extends Fragment {
         layoutEmpty = view.findViewById(R.id.layout_empty_my_communities);
 
         rvMyCommunities.setLayoutManager(new LinearLayoutManager(getContext()));
-        GroupsAdapter adapter = new GroupsAdapter(new ArrayList<>(), getChildFragmentManager());
-        rvMyCommunities.setAdapter(adapter);
-
         CommunityViewModel viewModel = new ViewModelProvider(requireActivity()).get(CommunityViewModel.class);
+
+        GroupsAdapter adapter = new GroupsAdapter(
+                new ArrayList<>(), 
+                getChildFragmentManager(), 
+                true, 
+                group -> viewModel.leaveGroup(group)
+        );
+        rvMyCommunities.setAdapter(adapter);
         viewModel.getJoinedGroups().observe(getViewLifecycleOwner(), groups -> {
             if (groups == null || groups.isEmpty()) {
                 rvMyCommunities.setVisibility(View.GONE);

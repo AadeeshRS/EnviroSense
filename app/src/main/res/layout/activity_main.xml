@@ -27,7 +27,19 @@
             app:navigationIcon="@drawable/ic_menu_hamburger"
             app:titleTextColor="@color/white"
             app:title="EnviroSense"
-            app:titleTextAppearance="@style/ToolbarTitleStyle" />
+            app:titleTextAppearance="@style/ToolbarTitleStyle">
+
+            <ImageView
+                android:id="@+id/btn_create_community"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="16dp"
+                android:background="@drawable/bg_circular_green"
+                android:src="@drawable/ic_add_black"
+                android:padding="6dp"
+                android:visibility="gone" />
+        </com.google.android.material.appbar.MaterialToolbar>
 
         <!-- Subtle divider line below the toolbar -->
         <View

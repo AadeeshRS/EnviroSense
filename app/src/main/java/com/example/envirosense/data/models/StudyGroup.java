@@ -16,9 +16,10 @@ public class StudyGroup {
     public double totalFocusHours;
     public int activeMembers;
     public String creationDate;
+    public android.graphics.Bitmap customIconBitmap;
 
     public StudyGroup(String groupName, int memberCount, int avgScore, String description,
-                      String emoji, List<String> subjects, double totalFocusHours,
+                      String emoji, java.util.List<String> subjects, double totalFocusHours,
                       int activeMembers, String creationDate) {
         this.groupName = groupName;
         this.memberCount = memberCount;

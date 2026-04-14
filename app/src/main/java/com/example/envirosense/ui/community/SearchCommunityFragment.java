@@ -45,7 +45,7 @@ public class SearchCommunityFragment extends Fragment {
         rvSearchResults = view.findViewById(R.id.rv_search_results);
         etSearch = view.findViewById(R.id.et_search);
         rvSearchResults.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new GroupsAdapter(new ArrayList<>(), getChildFragmentManager());
+        adapter = new GroupsAdapter(new ArrayList<>(), getChildFragmentManager(), false, null);
         rvSearchResults.setAdapter(adapter);
 
         CommunityViewModel viewModel = new ViewModelProvider(requireActivity()).get(CommunityViewModel.class);

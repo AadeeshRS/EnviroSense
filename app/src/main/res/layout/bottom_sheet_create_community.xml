@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_bottom_sheet"
+    android:padding="24dp">
+
+    <!-- Drag handle -->
+    <View
+        android:id="@+id/drag_handle"
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:background="#33FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_create_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Create Community"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/drag_handle" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/btn_select_icon"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="20dp"
+        app:cardBackgroundColor="#2A2C2E"
+        app:cardCornerRadius="40dp"
+        app:cardElevation="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_create_title">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tv_placeholder_emoji"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="➕"
+                android:textSize="32sp" />
+
+            <ImageView
+                android:id="@+id/iv_selected_icon"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:visibility="invisible" />
+        </FrameLayout>
+    </androidx.cardview.widget.CardView>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_group_name"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:hint="Name of the community"
+        app:boxStrokeColor="@color/primary_green"
+        app:hintTextColor="@color/text_secondary"
+        android:textColorHint="@color/text_secondary"
+        app:layout_constraintTop_toBottomOf="@id/btn_select_icon">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_group_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_group_subjects"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Subjects (comma separated)"
+        app:boxStrokeColor="@color/primary_green"
+        app:hintTextColor="@color/text_secondary"
+        android:textColorHint="@color/text_secondary"
+        app:layout_constraintTop_toBottomOf="@id/til_group_name">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_group_subjects"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_group_desc"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Description of the community"
+        app:boxStrokeColor="@color/primary_green"
+        app:hintTextColor="@color/text_secondary"
+        android:textColorHint="@color/text_secondary"
+        app:layout_constraintTop_toBottomOf="@id/til_group_subjects">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_group_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:maxLines="3"
+            android:inputType="textMultiLine" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_create_submit"
+        style="@style/Widget.Material3.Button.TonalButton"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="32dp"
+        android:text="Create Community"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:backgroundTint="@color/primary_green"
+        app:cornerRadius="12dp"
+        android:textColor="@color/black"
+        app:layout_constraintTop_toBottomOf="@id/til_group_desc"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

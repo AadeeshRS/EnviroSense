@@ -87,11 +87,13 @@ public class MainActivity extends AppCompatActivity {
         // Tint the hamburger icon to white
         toggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.white, getTheme()));
 
-        // Add all fragments (hide all except home) — preserves the existing lifecycle pattern
+        // Add all fragments (hide all except home) — preserves the existing lifecycle
+        // pattern
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, myResourcesFragment, "myResources").hide(myResourcesFragment)
-                    .add(R.id.fragment_container, searchCommunityFragment, "searchCommunity").hide(searchCommunityFragment)
+                    .add(R.id.fragment_container, searchCommunityFragment, "searchCommunity")
+                    .hide(searchCommunityFragment)
                     .add(R.id.fragment_container, myCommunityFragment, "myCommunity").hide(myCommunityFragment)
                     .add(R.id.fragment_container, settingsFragment, "settings").hide(settingsFragment)
                     .add(R.id.fragment_container, communityFragment, "community").hide(communityFragment)
@@ -104,7 +106,8 @@ public class MainActivity extends AppCompatActivity {
         // Setup Bottom Navigation
         bottomNav = findViewById(R.id.bottom_nav);
         bottomNav.setOnItemSelectedListener(item -> {
-            if (isSyncing) return true;
+            if (isSyncing)
+                return true;
             isSyncing = true;
 
             int id = item.getItemId();
@@ -116,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                     exitCommunityNav();
                     switchFragment(R.id.navigation_home);
                     navView.setCheckedItem(R.id.navigation_home);
-                    
+
                     bottomNav.post(() -> {
                         boolean wasSyncing = isSyncing;
                         isSyncing = true;
@@ -149,7 +152,8 @@ public class MainActivity extends AppCompatActivity {
 
         navView = findViewById(R.id.nav_view);
         navView.setNavigationItemSelectedListener(item -> {
-            if (isSyncing) return true;
+            if (isSyncing)
+                return true;
             isSyncing = true;
 
             int id = item.getItemId();
@@ -221,6 +225,7 @@ public class MainActivity extends AppCompatActivity {
             bottomNav.setSelectedItemId(R.id.comm_leaderboard);
             isSyncing = wasSyncing;
         });
+        updateToolbarButtons(communityFragment);
     }
 
     /**
@@ -234,7 +239,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Shows one of the three community sub-fragments (My Groups, Search, Resources).
+     * Shows one of the three community sub-fragments (My Groups, Search,
+     * Resources).
      * Does not swap the nav bar — already in community nav mode.
      */
     private void showCommunitySubFragment(Fragment target, String title) {
@@ -246,6 +252,7 @@ public class MainActivity extends AppCompatActivity {
             activeFragment = target;
         }
         toolbar.setTitle(title);
+        updateToolbarButtons(target);
     }
 
     /**
@@ -296,6 +303,23 @@ public class MainActivity extends AppCompatActivity {
                     .commit();
             activeFragment = targetFragment;
             toolbar.setTitle(title);
+            updateToolbarButtons(targetFragment);
+        }
+    }
+
+    private void updateToolbarButtons(Fragment target) {
+        android.widget.ImageView btnCreate = findViewById(R.id.btn_create_community);
+        if (btnCreate != null) {
+            if (target instanceof MyCommunityFragment) {
+                btnCreate.setVisibility(android.view.View.VISIBLE);
+                btnCreate.setOnClickListener(v -> {
+                    com.example.envirosense.ui.community.CreateCommunityBottomSheet bottomSheet = new com.example.envirosense.ui.community.CreateCommunityBottomSheet();
+                    bottomSheet.show(getSupportFragmentManager(), "CreateCommunity");
+                });
+            } else {
+                btnCreate.setVisibility(android.view.View.GONE);
+                btnCreate.setOnClickListener(null);
+            }
         }
     }
 

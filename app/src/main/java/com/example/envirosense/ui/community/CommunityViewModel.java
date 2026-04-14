@@ -63,6 +63,12 @@ public class CommunityViewModel extends ViewModel {
         }
     }
 
+    public void createGroup(StudyGroup group) {
+        List<StudyGroup> joined = new ArrayList<>(joinedGroups.getValue() != null ? joinedGroups.getValue() : new ArrayList<>());
+        joined.add(0, group); // Add to top
+        joinedGroups.setValue(joined);
+    }
+
     public void leaveGroup(StudyGroup group) {
         List<StudyGroup> available = new ArrayList<>(availableGroups.getValue() != null ? availableGroups.getValue() : new ArrayList<>());
         List<StudyGroup> joined = new ArrayList<>(joinedGroups.getValue() != null ? joinedGroups.getValue() : new ArrayList<>());

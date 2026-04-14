@@ -1,11 +1,17 @@
 package com.example.envirosense.ui.community;
 
+import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,8 +26,14 @@ import java.util.List;
 
 public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.ViewHolder> {
 
+    public interface OnGroupLeaveListener {
+        void onLeave(StudyGroup group);
+    }
+
     private List<StudyGroup> items;
     private final FragmentManager fragmentManager;
+    private final boolean isCompactMode;
+    private final OnGroupLeaveListener onLeaveListener;
 
     // Curated chip colors — muted tones that match the dark UI
     private static final int[] CHIP_COLORS = {
@@ -34,9 +46,11 @@ public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.ViewHolder
             0xFF006064,  // deep teal
     };
 
-    public GroupsAdapter(List<StudyGroup> items, FragmentManager fragmentManager) {
+    public GroupsAdapter(List<StudyGroup> items, FragmentManager fragmentManager, boolean isCompactMode, OnGroupLeaveListener onLeaveListener) {
         this.items = items;
         this.fragmentManager = fragmentManager;
+        this.isCompactMode = isCompactMode;
+        this.onLeaveListener = onLeaveListener;
     }
 
     @NonNull
@@ -51,7 +65,16 @@ public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.ViewHolder
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         StudyGroup group = items.get(position);
         
-        holder.tvGroupEmoji.setText(group.emoji);
+        if (group.customIconBitmap != null) {
+            holder.ivGroupIcon.setVisibility(View.VISIBLE);
+            holder.ivGroupIcon.setImageBitmap(group.customIconBitmap);
+            holder.tvGroupEmoji.setVisibility(View.INVISIBLE);
+        } else {
+            holder.ivGroupIcon.setVisibility(View.INVISIBLE);
+            holder.tvGroupEmoji.setVisibility(View.VISIBLE);
+            holder.tvGroupEmoji.setText(group.emoji);
+        }
+
         holder.tvGroupName.setText(group.groupName);
         holder.tvGroupDesc.setText(group.description);
         holder.tvMemberCount.setText(String.valueOf(group.memberCount));
@@ -67,10 +90,37 @@ public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.ViewHolder
             }
         }
 
-        holder.btnViewGroup.setOnClickListener(v -> {
-            GroupDetailBottomSheet bottomSheet = new GroupDetailBottomSheet(group);
-            bottomSheet.show(fragmentManager, "GroupDetail");
-        });
+        if (isCompactMode) {
+            holder.tvGroupDesc.setVisibility(View.GONE);
+            holder.statsRow.setVisibility(View.GONE);
+            holder.btnMoreOptions.setVisibility(View.VISIBLE);
+
+            holder.btnMoreOptions.setOnClickListener(v -> {
+                PopupMenu popup = new PopupMenu(v.getContext(), holder.btnMoreOptions);
+                popup.getMenu().add("Leave Community");
+                MenuItem leaveItem = popup.getMenu().getItem(0);
+                SpannableString s = new SpannableString(leaveItem.getTitle());
+                s.setSpan(new ForegroundColorSpan(Color.RED), 0, s.length(), 0);
+                leaveItem.setTitle(s);
+
+                popup.setOnMenuItemClickListener(item -> {
+                    if (onLeaveListener != null) {
+                        onLeaveListener.onLeave(group);
+                    }
+                    return true;
+                });
+                popup.show();
+            });
+        } else {
+            holder.tvGroupDesc.setVisibility(View.VISIBLE);
+            holder.statsRow.setVisibility(View.VISIBLE);
+            holder.btnMoreOptions.setVisibility(View.GONE);
+            
+            holder.btnViewGroup.setOnClickListener(v -> {
+                GroupDetailBottomSheet bottomSheet = new GroupDetailBottomSheet(group);
+                bottomSheet.show(fragmentManager, "GroupDetail");
+            });
+        }
     }
 
     /**
@@ -127,17 +177,23 @@ public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.ViewHolder
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvGroupEmoji, tvGroupName, tvGroupDesc, tvMemberCount, tvAvgScore;
         LinearLayout subjectRows;
+        LinearLayout statsRow;
         MaterialButton btnViewGroup;
+        ImageView btnMoreOptions;
+        ImageView ivGroupIcon;
 
         ViewHolder(View view) {
             super(view);
             tvGroupEmoji = view.findViewById(R.id.tv_group_emoji);
+            ivGroupIcon = view.findViewById(R.id.iv_group_icon);
             tvGroupName = view.findViewById(R.id.tv_group_name);
             tvGroupDesc = view.findViewById(R.id.tv_group_desc);
             tvMemberCount = view.findViewById(R.id.tv_member_count);
             tvAvgScore = view.findViewById(R.id.tv_avg_score);
             subjectRows = view.findViewById(R.id.subject_rows);
+            statsRow = view.findViewById(R.id.stats_row);
             btnViewGroup = view.findViewById(R.id.btn_view_group);
+            btnMoreOptions = view.findViewById(R.id.btn_more_options);
         }
     }
 }
