@@ -26,6 +26,7 @@
         </activity>
         
         <activity android:name=".ui.community.ChatActivity" />
+        <activity android:name=".ui.community.GroupChatSettingsActivity" />
         
         <service android:name=".services.TrackingService"
             android:foregroundServiceType="microphone" />

@@ -1,6 +1,7 @@
 package com.example.envirosense.data;
 
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 
@@ -15,4 +16,10 @@ public interface ChatMessageDao {
 
     @Insert
     void insert(ChatMessage message);
+
+    @Delete
+    void delete(ChatMessage message);
+
+    @Query("DELETE FROM chat_messages WHERE groupName = :groupName")
+    void deleteMessagesForGroup(String groupName);
 }

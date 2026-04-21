@@ -1,8 +1,11 @@
 package com.example.envirosense.ui.community;
 
+import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,6 +28,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ChatActivity extends AppCompatActivity {
+
+    private static final int REQUEST_SETTINGS = 1001;
 
     private RecyclerView rvMessages;
     private EditText etInput;
@@ -59,6 +64,14 @@ public class ChatActivity extends AppCompatActivity {
             groupName = "Unknown Group";
         }
 
+        LinearLayout llGroupInfo = findViewById(R.id.ll_group_info_container);
+        llGroupInfo.setOnClickListener(v -> {
+            Intent intent = new Intent(ChatActivity.this, GroupChatSettingsActivity.class);
+            intent.putExtra("GROUP_NAME", groupName);
+            intent.putExtra("GROUP_EMOJI", groupEmoji);
+            startActivityForResult(intent, REQUEST_SETTINGS);
+        });
+
         tvGroupName.setText(groupName);
         if (groupEmoji != null) {
             tvGroupEmoji.setText(groupEmoji);
@@ -69,7 +82,22 @@ public class ChatActivity extends AppCompatActivity {
         btnSend = findViewById(R.id.btn_send_message);
 
         messageList = new ArrayList<>();
-        adapter = new ChatAdapter(messageList);
+        adapter = new ChatAdapter(messageList, (message, position) -> {
+            new AlertDialog.Builder(ChatActivity.this)
+                    .setTitle("Delete Message")
+                    .setMessage("Are you sure you want to delete this message?")
+                    .setPositiveButton("Delete", (dialog, which) -> {
+                        executorService.execute(() -> {
+                            chatMessageDao.delete(message);
+                            runOnUiThread(() -> {
+                                messageList.remove(position);
+                                adapter.notifyItemRemoved(position);
+                            });
+                        });
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+        });
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvMessages.setLayoutManager(layoutManager);
         rvMessages.setAdapter(adapter);
@@ -133,6 +161,17 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
     
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_SETTINGS && resultCode == RESULT_OK) {
+            if (data != null && data.getBooleanExtra("CHAT_CLEARED", false)) {
+                messageList.clear();
+                adapter.notifyDataSetChanged();
+            }
+        }
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();

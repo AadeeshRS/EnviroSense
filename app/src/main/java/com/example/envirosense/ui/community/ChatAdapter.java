@@ -18,9 +18,15 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int VIEW_TYPE_OTHER = 2;
 
     private List<ChatMessage> messages;
+    private OnMessageLongClickListener longClickListener;
 
-    public ChatAdapter(List<ChatMessage> messages) {
+    public interface OnMessageLongClickListener {
+        void onMessageLongClick(ChatMessage message, int position);
+    }
+
+    public ChatAdapter(List<ChatMessage> messages, OnMessageLongClickListener longClickListener) {
         this.messages = messages;
+        this.longClickListener = longClickListener;
     }
 
     @Override
@@ -47,6 +53,16 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         ChatMessage message = messages.get(position);
         if (holder instanceof MeViewHolder) {
             ((MeViewHolder) holder).bind(message);
+            holder.itemView.setOnLongClickListener(v -> {
+                if (longClickListener != null) {
+                    int adapterPos = holder.getAdapterPosition();
+                    if (adapterPos != RecyclerView.NO_POSITION) {
+                        longClickListener.onMessageLongClick(message, adapterPos);
+                    }
+                    return true;
+                }
+                return false;
+            });
         } else if (holder instanceof OtherViewHolder) {
             ((OtherViewHolder) holder).bind(message);
         }
