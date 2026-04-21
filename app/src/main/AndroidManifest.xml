@@ -25,6 +25,8 @@
             </intent-filter>
         </activity>
         
+        <activity android:name=".ui.community.ChatActivity" />
+        
         <service android:name=".services.TrackingService"
             android:foregroundServiceType="microphone" />
     </application>

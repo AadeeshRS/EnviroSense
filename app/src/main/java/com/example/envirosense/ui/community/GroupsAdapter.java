@@ -111,6 +111,15 @@ public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.ViewHolder
                 });
                 popup.show();
             });
+
+            holder.itemView.setOnClickListener(v -> {
+                android.content.Intent intent = new android.content.Intent(v.getContext(), ChatActivity.class);
+                intent.putExtra("GROUP_NAME", group.groupName);
+                if (group.emoji != null) {
+                    intent.putExtra("GROUP_EMOJI", group.emoji);
+                }
+                v.getContext().startActivity(intent);
+            });
         } else {
             holder.tvGroupDesc.setVisibility(View.VISIBLE);
             holder.statsRow.setVisibility(View.VISIBLE);
