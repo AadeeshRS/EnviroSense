@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -59,6 +60,8 @@ public class ChatActivity extends AppCompatActivity {
 
         groupName = getIntent().getStringExtra("GROUP_NAME");
         String groupEmoji = getIntent().getStringExtra("GROUP_EMOJI");
+        int avgScore = getIntent().getIntExtra("AVG_SCORE", 72);
+        int activeMembers = getIntent().getIntExtra("ACTIVE_MEMBERS", 3);
         
         if (groupName == null) {
             groupName = "Unknown Group";
@@ -76,6 +79,16 @@ public class ChatActivity extends AppCompatActivity {
         if (groupEmoji != null) {
             tvGroupEmoji.setText(groupEmoji);
         }
+
+        ImageButton btnStartSession = findViewById(R.id.btn_start_session);
+        btnStartSession.setOnClickListener(v -> {
+            Intent intent = new Intent(ChatActivity.this, GroupSessionActivity.class);
+            intent.putExtra("GROUP_NAME", groupName);
+            intent.putExtra("GROUP_EMOJI", groupEmoji);
+            intent.putExtra("AVG_SCORE", avgScore);
+            intent.putExtra("ACTIVE_MEMBERS", activeMembers);
+            startActivity(intent);
+        });
 
         rvMessages = findViewById(R.id.rv_chat_messages);
         etInput = findViewById(R.id.et_message_input);

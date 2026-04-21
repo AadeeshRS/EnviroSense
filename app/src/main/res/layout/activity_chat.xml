@@ -26,68 +26,86 @@
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
             <LinearLayout
-                android:id="@+id/ll_group_info_container"
-                android:layout_marginTop="12dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:layout_marginBottom="10dp"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true">
-
-                <TextView
-                    android:id="@+id/tv_group_emoji_chat"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="@drawable/bg_circular_progress"
-                    android:backgroundTint="#2A2C2E"
-                    android:gravity="center"
-                    android:text="📚"
-                    android:textSize="18sp"
-                    android:visibility="visible" />
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/cv_group_icon_chat_container"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    app:cardCornerRadius="20dp"
-                    app:cardBackgroundColor="@android:color/transparent"
-                    app:cardElevation="0dp"
-                    android:visibility="gone">
-
-                    <ImageView
-                        android:id="@+id/iv_group_icon_chat"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scaleType="centerCrop" />
-                </androidx.cardview.widget.CardView>
+                android:orientation="horizontal">
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:id="@+id/ll_group_info_container"
+                    android:layout_marginTop="12dp"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:orientation="vertical">
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="10dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true">
 
                     <TextView
-                        android:id="@+id/tv_group_name_chat"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:ellipsize="end"
-                        android:maxLines="1"
-                        android:text="Group Name"
-                        android:textColor="@color/white"
+                        android:id="@+id/tv_group_emoji_chat"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@drawable/bg_circular_progress"
+                        android:backgroundTint="#2A2C2E"
+                        android:gravity="center"
+                        android:text="📚"
                         android:textSize="18sp"
-                        android:textStyle="bold" />
+                        android:visibility="visible" />
 
-                    <TextView
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/cv_group_icon_chat_container"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        app:cardCornerRadius="20dp"
+                        app:cardBackgroundColor="@android:color/transparent"
+                        app:cardElevation="0dp"
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:id="@+id/iv_group_icon_chat"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:scaleType="centerCrop" />
+                    </androidx.cardview.widget.CardView>
+
+                    <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="tap here for group info"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="12sp" />
+                        android:layout_marginStart="12dp"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tv_group_name_chat"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:maxLines="1"
+                            android:text="Group Name"
+                            android:textColor="@color/white"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="tap here for group info"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="12sp" />
+                    </LinearLayout>
                 </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/btn_start_session"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_marginEnd="16dp"
+                    android:background="@drawable/bg_circle_black_green_border"
+                    android:src="@drawable/ic_add_black"
+                    app:tint="@color/primary_green"
+                    android:contentDescription="Start Session" />
             </LinearLayout>
 
         </androidx.appcompat.widget.Toolbar>
