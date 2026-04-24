@@ -127,6 +127,7 @@ public class CreateCommunityBottomSheet extends BottomSheetDialogFragment {
                 subjects,
                 0.0,
                 1,
+                0, // sessionMembers
                 "Just now"
         );
         newGroup.customIconBitmap = selectedBitmap;

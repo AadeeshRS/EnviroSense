@@ -20,17 +20,17 @@ public class CommunityViewModel extends ViewModel {
         List<StudyGroup> initialAvailable = new ArrayList<>();
         initialAvailable.add(new StudyGroup("Coding Elite", 45, 92,
                 "Focus hours for CS students and devs", "💻",
-                Arrays.asList("DSA", "OS", "Java", "Python", "ML"), 1280.0, 18, "Dec 01, 2025"));
+                Arrays.asList("DSA", "OS", "Java", "Python", "ML"), 1280.0, 18, 5, "Dec 01, 2025"));
         initialAvailable.add(new StudyGroup("Morning Birds", 8, 85,
                 "We focus early. 5AM - 8AM only.", "🌅",
-                Arrays.asList("Maths", "Physics"), 96.2, 4, "Mar 10, 2026"));
+                Arrays.asList("Maths", "Physics"), 96.2, 4, 2, "Mar 10, 2026"));
 
         List<StudyGroup> initialJoined = new ArrayList<>();
         initialJoined.add(new StudyGroup(
                 "Library Legends", 12, 78,
                 "Daily study sessions at the campus library", "📚",
                 Arrays.asList("DCCN", "DAA", "DBMS"),
-                340.5, 5, "Jan 15, 2026"));
+                340.5, 5, 3, "Jan 15, 2026"));
 
         availableGroups.setValue(initialAvailable);
         joinedGroups.setValue(initialJoined);

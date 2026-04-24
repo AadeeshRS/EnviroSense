@@ -30,14 +30,22 @@ public class GroupSessionActivity extends AppCompatActivity {
         String groupEmoji = getIntent().getStringExtra("GROUP_EMOJI");
         int avgScore = getIntent().getIntExtra("AVG_SCORE", 72);
         int activeMembers = getIntent().getIntExtra("ACTIVE_MEMBERS", 3);
+        int sessionMembers = getIntent().getIntExtra("SESSION_MEMBERS", 1);
 
         if (groupName != null) tvName.setText(groupName);
         if (groupEmoji != null) tvEmoji.setText(groupEmoji);
         tvScore.setText(String.valueOf(avgScore));
-        tvMembers.setText(String.valueOf(activeMembers));
+        tvMembers.setText(String.valueOf(sessionMembers));
+
+        if (sessionMembers == 0) {
+            btnJoin.setText("Start Session");
+        } else {
+            btnJoin.setText("Join Session");
+        }
 
         btnJoin.setOnClickListener(v -> {
-            Toast.makeText(this, "Joining " + groupName + " session...", Toast.LENGTH_SHORT).show();
+            String action = sessionMembers == 0 ? "Starting " : "Joining ";
+            Toast.makeText(this, action + groupName + " session...", Toast.LENGTH_SHORT).show();
             finish();
         });
     }

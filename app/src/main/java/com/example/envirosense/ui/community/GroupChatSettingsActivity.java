@@ -38,17 +38,23 @@ public class GroupChatSettingsActivity extends AppCompatActivity {
 
         groupName = getIntent().getStringExtra("GROUP_NAME");
         String emoji = getIntent().getStringExtra("GROUP_EMOJI");
+        int activeMembers = getIntent().getIntExtra("ACTIVE_MEMBERS", 0);
+        int totalParticipants = getIntent().getIntExtra("TOTAL_PARTICIPANTS", 0);
 
         if (groupName == null) groupName = "Unknown Group";
 
         TextView tvEmoji = findViewById(R.id.tv_settings_emoji);
         TextView tvName = findViewById(R.id.tv_settings_group_name);
+        TextView tvParticipants = findViewById(R.id.tv_settings_participants);
+        TextView tvActiveStudents = findViewById(R.id.tv_settings_active_students);
         MaterialButton btnClearChat = findViewById(R.id.btn_clear_chat);
 
         tvName.setText(groupName);
         if (emoji != null) {
             tvEmoji.setText(emoji);
         }
+        tvParticipants.setText("Members: " + totalParticipants);
+        tvActiveStudents.setText("Active Now: " + activeMembers);
 
         dao = AppDatabase.getInstance(this).chatMessageDao();
         executorService = Executors.newSingleThreadExecutor();

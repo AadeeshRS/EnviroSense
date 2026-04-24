@@ -15,12 +15,13 @@ public class StudyGroup {
     public List<String> subjects;
     public double totalFocusHours;
     public int activeMembers;
+    public int sessionMembers;
     public String creationDate;
     public android.graphics.Bitmap customIconBitmap;
 
     public StudyGroup(String groupName, int memberCount, int avgScore, String description,
                       String emoji, java.util.List<String> subjects, double totalFocusHours,
-                      int activeMembers, String creationDate) {
+                      int activeMembers, int sessionMembers, String creationDate) {
         this.groupName = groupName;
         this.memberCount = memberCount;
         this.avgScore = avgScore;
@@ -29,6 +30,7 @@ public class StudyGroup {
         this.subjects = subjects;
         this.totalFocusHours = totalFocusHours;
         this.activeMembers = activeMembers;
+        this.sessionMembers = sessionMembers;
         this.creationDate = creationDate;
     }
 

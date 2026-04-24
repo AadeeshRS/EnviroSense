@@ -118,6 +118,10 @@ public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.ViewHolder
                 if (group.emoji != null) {
                     intent.putExtra("GROUP_EMOJI", group.emoji);
                 }
+                intent.putExtra("TOTAL_PARTICIPANTS", group.memberCount);
+                intent.putExtra("ACTIVE_MEMBERS", group.activeMembers);
+                intent.putExtra("SESSION_MEMBERS", group.sessionMembers);
+                intent.putExtra("AVG_SCORE", group.avgScore);
                 v.getContext().startActivity(intent);
             });
         } else {

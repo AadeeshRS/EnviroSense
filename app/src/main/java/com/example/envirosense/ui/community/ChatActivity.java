@@ -27,6 +27,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.SetOptions;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -62,6 +67,8 @@ public class ChatActivity extends AppCompatActivity {
         String groupEmoji = getIntent().getStringExtra("GROUP_EMOJI");
         int avgScore = getIntent().getIntExtra("AVG_SCORE", 72);
         int activeMembers = getIntent().getIntExtra("ACTIVE_MEMBERS", 3);
+        int sessionMembers = getIntent().getIntExtra("SESSION_MEMBERS", 1);
+        int totalParticipants = getIntent().getIntExtra("TOTAL_PARTICIPANTS", 12);
         
         if (groupName == null) {
             groupName = "Unknown Group";
@@ -72,6 +79,8 @@ public class ChatActivity extends AppCompatActivity {
             Intent intent = new Intent(ChatActivity.this, GroupChatSettingsActivity.class);
             intent.putExtra("GROUP_NAME", groupName);
             intent.putExtra("GROUP_EMOJI", groupEmoji);
+            intent.putExtra("ACTIVE_MEMBERS", activeMembers);
+            intent.putExtra("TOTAL_PARTICIPANTS", totalParticipants);
             startActivityForResult(intent, REQUEST_SETTINGS);
         });
 
@@ -86,7 +95,8 @@ public class ChatActivity extends AppCompatActivity {
             intent.putExtra("GROUP_NAME", groupName);
             intent.putExtra("GROUP_EMOJI", groupEmoji);
             intent.putExtra("AVG_SCORE", avgScore);
-            intent.putExtra("ACTIVE_MEMBERS", activeMembers);
+            intent.putExtra("ACTIVE_MEMBERS", activeMembers); // We'll pass sessionMembers as active session members in GroupSessionActivity
+            intent.putExtra("SESSION_MEMBERS", sessionMembers);
             startActivity(intent);
         });
 
@@ -137,6 +147,38 @@ public class ChatActivity extends AppCompatActivity {
                         scrollToBottom();
                     });
                 });
+            }
+        });
+
+        // Sync/Fetch from Firestore
+        fetchAndSyncFromFirestore(groupName, totalParticipants, activeMembers, sessionMembers);
+    }
+
+    private void fetchAndSyncFromFirestore(String groupName, int defaultTotal, int defaultActive, int defaultSession) {
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+        DocumentReference docRef = firestore.collection("communities").document(groupName);
+        
+        docRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                Long fTotal = documentSnapshot.getLong("totalMembers");
+                Long fActive = documentSnapshot.getLong("activeMembers");
+                Long fSession = documentSnapshot.getLong("sessionMembers");
+                
+                int total = fTotal != null ? fTotal.intValue() : defaultTotal;
+                int active = fActive != null ? fActive.intValue() : defaultActive;
+                int session = fSession != null ? fSession.intValue() : defaultSession;
+                
+                // Update local intents so they are passed to other activities correctly
+                getIntent().putExtra("TOTAL_PARTICIPANTS", total);
+                getIntent().putExtra("ACTIVE_MEMBERS", active);
+                getIntent().putExtra("SESSION_MEMBERS", session);
+            } else {
+                // If it doesn't exist, we sync our default local data (which guarantees session < active <= total)
+                Map<String, Object> data = new HashMap<>();
+                data.put("totalMembers", defaultTotal);
+                data.put("activeMembers", defaultActive);
+                data.put("sessionMembers", defaultSession);
+                docRef.set(data, SetOptions.merge());
             }
         });
     }
