@@ -29,3 +29,7 @@ local.properties
 firebase_plan.md
 gemini_firebase_prompt.md
 firebase_handoff_master_plan.md
+
+# NEW: Firebase configuration (should not be public)
+google-services.json
+app/google-services.json
