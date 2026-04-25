@@ -1,11 +1,9 @@
 package com.example.envirosense.data.models;
 
 import java.util.List;
+import com.google.firebase.firestore.Exclude;
 
-/**
- * POJO for a community study group.
- * Backend team can later replace this with a Firestore-mapped model or API DTO.
- */
+
 public class StudyGroup {
     public String groupName;
     public int memberCount;
@@ -17,7 +15,12 @@ public class StudyGroup {
     public int activeMembers;
     public int sessionMembers;
     public String creationDate;
-    public android.graphics.Bitmap customIconBitmap;
+    public String customIconBase64;
+    @Exclude
+    public transient android.graphics.Bitmap customIconBitmap;
+
+    public StudyGroup() {
+    }
 
     public StudyGroup(String groupName, int memberCount, int avgScore, String description,
                       String emoji, java.util.List<String> subjects, double totalFocusHours,

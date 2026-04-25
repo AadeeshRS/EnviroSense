@@ -28,8 +28,14 @@ import com.example.envirosense.data.FocusSession;
 import com.example.envirosense.R;
 import com.example.envirosense.ui.achievements.AchievementManager;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import android.widget.ProgressBar;
 import android.app.NotificationManager;
@@ -55,11 +61,14 @@ public class HomeFragment extends Fragment implements SensorEventListener {
     private MaterialButton btnStart;
     private TextView tvActiveNoise, tvActiveLight, tvActiveTime;
 
-    // Tracking state
+    private int userNoiseLimit = 65;
+    private int userLightMin = 200;
+
     private boolean isTracking = false;
     private final Handler handler = new Handler();
     private float currentLux = 0f;
     private TextView tvFocusScore;
+    private TextView tvFocusLabel;
     private ProgressBar progressFocus;
 
     private View focusRingContainer, viewActiveRing, viewNoData;
@@ -67,6 +76,10 @@ public class HomeFragment extends Fragment implements SensorEventListener {
     private TextView tvGreeting, tvName;
     private TextView tvNoiseAlertDetails;
     private TextView tvOptimalNoise, tvOptimalLight, tvOptimalTime;
+    private TextView tvFirstLaunchNoise, tvFirstLaunchLight;
+
+    private SharedPreferences prefs;
+    private SharedPreferences.OnSharedPreferenceChangeListener prefsListener;
 
     private double currentLiveScoreEma = -1;
     private long lastNoiseVibrationTime = 0;
@@ -105,6 +118,7 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         tvActiveLight = view.findViewById(R.id.tv_active_light);
         tvActiveTime = view.findViewById(R.id.tv_active_time);
         tvFocusScore = view.findViewById(R.id.tv_focus_score);
+        tvFocusLabel = view.findViewById(R.id.tv_focus_label);
         progressFocus = view.findViewById(R.id.progress_focus);
         focusRingContainer = view.findViewById(R.id.focus_ring_container);
         viewActiveRing = view.findViewById(R.id.view_active_ring);
@@ -115,7 +129,10 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         tvNoiseAlertDetails = view.findViewById(R.id.tv_noise_alert_details);
         tvOptimalNoise = view.findViewById(R.id.tv_optimal_noise);
         tvOptimalLight = view.findViewById(R.id.tv_optimal_light);
-        tvOptimalTime = view.findViewById(R.id.tv_optimal_time);
+        tvFirstLaunchNoise = view.findViewById(R.id.tv_first_launch_noise);
+        tvFirstLaunchLight = view.findViewById(R.id.tv_first_launch_light);
+
+        prefs = requireActivity().getSharedPreferences("EnviroSensePrefs", Context.MODE_PRIVATE);
 
         focusRingContainer.setVisibility(View.GONE);
         tvScoreLabel.setVisibility(View.GONE);
@@ -128,19 +145,60 @@ public class HomeFragment extends Fragment implements SensorEventListener {
 
         btnStart.setOnClickListener(v -> {
             if (cardCurrentEnv.getVisibility() == View.VISIBLE) {
-
                 updateUi(HomeState.SESSION_ENDED);
             } else {
                 checkPermissionsAndStart();
             }
         });
 
+        View.OnClickListener noiseListener = v -> {
+            if (isTracking)
+                return;
+            com.example.envirosense.ui.settings.NoiseThresholdBottomSheet noiseSheet = new com.example.envirosense.ui.settings.NoiseThresholdBottomSheet(
+                    newLimit -> {
+                        prefs.edit().putInt("noise_limit", newLimit).apply();
+                    });
+            noiseSheet.show(getParentFragmentManager(), "NoiseThresholdSheetFromHome");
+        };
+
+        View.OnClickListener lightListener = v -> {
+            if (isTracking)
+                return;
+            com.example.envirosense.ui.settings.LightMinimumBottomSheet lightSheet = new com.example.envirosense.ui.settings.LightMinimumBottomSheet(
+                    newLightLimit -> {
+                        prefs.edit().putInt("light_min", newLightLimit).apply();
+                    });
+            lightSheet.show(getParentFragmentManager(), "LightMinimumSheetFromHome");
+        };
+
+        cardOptimalConditions.setOnClickListener(null);
+        if (cardFirstLaunch != null)
+            cardFirstLaunch.setOnClickListener(null);
+        if (tvOptimalNoise != null)
+            tvOptimalNoise.setOnClickListener(noiseListener);
+        if (tvOptimalLight != null)
+            tvOptimalLight.setOnClickListener(lightListener);
+        if (tvFirstLaunchNoise != null)
+            tvFirstLaunchNoise.setOnClickListener(noiseListener);
+        if (tvFirstLaunchLight != null)
+            tvFirstLaunchLight.setOnClickListener(lightListener);
+
+        prefsListener = (sharedPreferences, key) -> {
+            if ("noise_limit".equals(key) || "light_min".equals(key)) {
+                applyThresholdsFromPrefs();
+            }
+        };
+        prefs.registerOnSharedPreferenceChangeListener(prefsListener);
+        applyThresholdsFromPrefs();
+
         view.findViewById(R.id.btn_dismiss_alert).setOnClickListener(v -> bannerNoiseAlert.setVisibility(View.GONE));
 
         new Thread(() -> {
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            String uid = currentUser != null ? currentUser.getUid() : "guest";
             FocusSession lastSession = AppDatabase.getInstance(requireContext())
                     .focusSessionDao()
-                    .getLastSession();
+                    .getLastSession(uid);
 
             requireActivity().runOnUiThread(() -> {
                 if (lastSession == null) {
@@ -184,7 +242,11 @@ public class HomeFragment extends Fragment implements SensorEventListener {
 
         handler.post(updateSensorsRunnable);
 
-        SharedPreferences prefs = requireActivity().getSharedPreferences("EnviroSensePrefs", Context.MODE_PRIVATE);
+        userNoiseLimit = prefs.getInt("noise_limit", 65);
+        userLightMin = prefs.getInt("light_min", 200);
+
+        applyThresholdsFromPrefs();
+
         if (prefs.getBoolean("dnd_enabled", false)) {
             NotificationManager nm = (NotificationManager) requireContext()
                     .getSystemService(Context.NOTIFICATION_SERVICE);
@@ -197,6 +259,9 @@ public class HomeFragment extends Fragment implements SensorEventListener {
 
     private void stopTrackingSensors() {
         isTracking = false;
+        if (tvFocusLabel != null) {
+            tvFocusLabel.setText("FOCUS");
+        }
         handler.removeCallbacks(updateSensorsRunnable);
         sensorManager.unregisterListener(this);
         stopAudioRecording();
@@ -247,6 +312,14 @@ public class HomeFragment extends Fragment implements SensorEventListener {
                     tvActiveTime.setText("✓ " + currentTime);
                 }
 
+                long elapsedMillis = System.currentTimeMillis() - sessionStartTime;
+                long totalSeconds = elapsedMillis / 1000;
+                long mins = totalSeconds / 60;
+                long secs = totalSeconds % 60;
+                if (tvFocusLabel != null) {
+                    tvFocusLabel.setText(String.format(java.util.Locale.getDefault(), "%02d:%02d", mins, secs));
+                }
+
                 int amplitude = mediaRecorder.getMaxAmplitude();
                 double db = 0;
                 if (amplitude > 0) {
@@ -259,13 +332,13 @@ public class HomeFragment extends Fragment implements SensorEventListener {
                     tvActiveNoise.setText("✓ " + displayDb + " dB");
 
                 double noiseScore = 100;
-                if (displayDb > 60) {
-                    noiseScore = Math.max(0, 100 - ((displayDb - 60) * 2.5));
+                if (displayDb > userNoiseLimit) {
+                    noiseScore = Math.max(0, 100 - ((displayDb - userNoiseLimit) * 2.5));
                 }
 
                 double lightScore = 100;
-                if (currentLux < 200) {
-                    lightScore = Math.max(0, (currentLux / 200f) * 100);
+                if (currentLux < userLightMin) {
+                    lightScore = Math.max(0, (currentLux / (float) userLightMin) * 100);
                 } else if (currentLux > 2000) {
                     lightScore = Math.max(0, 100 - ((currentLux - 2000) * 0.05));
                 }
@@ -295,8 +368,7 @@ public class HomeFragment extends Fragment implements SensorEventListener {
                 if (progressFocus != null)
                     progressFocus.setProgress(displayScore);
 
-                int noiseLimit = 70;
-                if (displayDb > noiseLimit + 10) {
+                if (displayDb > userNoiseLimit + 5) {
                     if (bannerNoiseAlert.getVisibility() == View.GONE) {
                         bannerNoiseAlert.setVisibility(View.VISIBLE);
                         if (System.currentTimeMillis() - lastNoiseVibrationTime > 10000) {
@@ -311,7 +383,7 @@ public class HomeFragment extends Fragment implements SensorEventListener {
                         }
                     }
                     if (tvNoiseAlertDetails != null) {
-                        tvNoiseAlertDetails.setText("Current: " + displayDb + " dB\nLimit: " + noiseLimit + " dB");
+                        tvNoiseAlertDetails.setText("Current: " + displayDb + " dB\nLimit: " + userNoiseLimit + " dB");
                     }
                 } else {
                     if (bannerNoiseAlert.getVisibility() == View.VISIBLE) {
@@ -341,6 +413,9 @@ public class HomeFragment extends Fragment implements SensorEventListener {
     public void onDestroy() {
         super.onDestroy();
         stopTrackingSensors();
+        if (prefs != null && prefsListener != null) {
+            prefs.unregisterOnSharedPreferenceChangeListener(prefsListener);
+        }
     }
 
     @Override
@@ -349,15 +424,24 @@ public class HomeFragment extends Fragment implements SensorEventListener {
 
         if (!hidden) {
             new Thread(() -> {
+                FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+                String uid = currentUser != null ? currentUser.getUid() : "guest";
                 List<FocusSession> sessions = AppDatabase.getInstance(requireContext())
-                        .focusSessionDao().getAllSessions();
+                        .focusSessionDao().getAllSessions(uid);
 
                 requireActivity().runOnUiThread(() -> {
+                    SharedPreferences prefs = requireContext().getSharedPreferences("EnviroSensePrefs",
+                            Context.MODE_PRIVATE);
+                    String userName = prefs.getString("user_name", "there");
+                    if (tvName != null && !isTracking)
+                        tvName.setText(userName);
+
+                    userNoiseLimit = prefs.getInt("noise_limit", 65);
+                    userLightMin = prefs.getInt("light_min", 200);
+                    applyThresholdsFromPrefs();
 
                     if (sessions.isEmpty() && !isTracking) {
-
                         updateUi(HomeState.FIRST_LAUNCH);
-
                         cumulativeScore = 0;
                         sampleCount = 0;
                         currentPeakScore = 0;
@@ -374,8 +458,10 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         TransitionManager.beginDelayedTransition(rootLayout);
 
         if (state == HomeState.DEFAULT) {
-            tvGreeting.setText("Good morning");
-            tvName.setText("Arjun");
+            String userName = requireContext().getSharedPreferences("EnviroSensePrefs", Context.MODE_PRIVATE)
+                    .getString("user_name", "there");
+            tvGreeting.setText(getGreetingMessage());
+            tvName.setText(userName);
             focusRingContainer.setVisibility(View.VISIBLE);
             viewActiveRing.setVisibility(View.VISIBLE);
             viewNoData.setVisibility(View.GONE);
@@ -420,8 +506,10 @@ public class HomeFragment extends Fragment implements SensorEventListener {
             bannerPoorEnv.setVisibility(View.GONE);
             btnStart.setText("End Session");
         } else if (state == HomeState.SESSION_ENDED) {
-            tvGreeting.setText("Good morning");
-            tvName.setText("Arjun");
+            String userName = requireContext().getSharedPreferences("EnviroSensePrefs", Context.MODE_PRIVATE)
+                    .getString("user_name", "there");
+            tvGreeting.setText(getGreetingMessage());
+            tvName.setText(userName);
             stopTrackingSensors();
             cardOptimalConditions.setVisibility(View.VISIBLE);
             cardCurrentEnv.setVisibility(View.GONE);
@@ -437,7 +525,10 @@ public class HomeFragment extends Fragment implements SensorEventListener {
             float avgLight = sampleCount > 0 ? (float) (cumulativeLight / sampleCount) : 0;
 
             long elapsedMillis = System.currentTimeMillis() - sessionStartTime;
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            String uid = currentUser != null ? currentUser.getUid() : "guest";
             FocusSession newSession = new FocusSession(
+                    uid,
                     System.currentTimeMillis(),
                     finalScore,
                     elapsedMillis,
@@ -474,21 +565,81 @@ public class HomeFragment extends Fragment implements SensorEventListener {
         }
     }
 
+    private String getGreetingMessage() {
+        int hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY);
+        if (hour >= 5 && hour < 12) {
+            return "Good morning,";
+        } else if (hour >= 12 && hour < 16) {
+            return "Good afternoon,";
+        } else {
+            return "Good evening,";
+        }
+    }
+
     private void saveSession(int score, long durationMs, String location, Runnable onSaved) {
         double avgNoise = sampleCount > 0 ? (cumulativeNoise / sampleCount) : 0;
         float avgLight = sampleCount > 0 ? (float) (cumulativeLight / sampleCount) : 0;
 
-        FocusSession newSession = new FocusSession(System.currentTimeMillis(), score, durationMs, location, avgNoise,
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        String uid = user != null ? user.getUid() : "guest";
+
+        FocusSession newSession = new FocusSession(uid, System.currentTimeMillis(), score, durationMs, location, avgNoise,
                 avgLight, currentPeakScore, currentNoiseSpikes);
         new Thread(() -> {
-            AppDatabase.getInstance(requireContext()).focusSessionDao().insert(newSession);
+            AppDatabase db = AppDatabase.getInstance(requireContext());
+            db.focusSessionDao().insert(newSession);
+
+            List<FocusSession> allSessions = db.focusSessionDao().getAllSessions(uid);
+            long totalMs = 0;
+            double totalScore = 0;
+            for (FocusSession s : allSessions) {
+                totalMs += s.durationMs;
+                totalScore += s.finalScore;
+            }
+            double totalHours = totalMs / 3600000.0;
+            double avgScore = allSessions.isEmpty() ? 0 : totalScore / allSessions.size();
+
+            if (user != null) {
+                String userName = requireContext().getSharedPreferences("EnviroSensePrefs", Context.MODE_PRIVATE)
+                        .getString("user_name", "User");
+                Map<String, Object> stats = new HashMap<>();
+                stats.put("totalHours", totalHours);
+                stats.put("averageScore", Math.round(avgScore));
+                stats.put("sessionCount", allSessions.size());
+                stats.put("name", userName);
+                FirebaseFirestore.getInstance()
+                        .collection("users")
+                        .document(user.getUid())
+                        .set(stats, SetOptions.merge());
+            }
 
             AchievementManager.checkUnlocks(requireContext());
 
-            // Wait for DB insertion to finish before triggering navigation
             if (onSaved != null) {
                 requireActivity().runOnUiThread(onSaved);
             }
         }).start();
+    }
+
+    private void applyThresholdsFromPrefs() {
+        if (prefs == null) {
+            return;
+        }
+
+        userNoiseLimit = prefs.getInt("noise_limit", 65);
+        userLightMin = prefs.getInt("light_min", 200);
+
+        if (tvOptimalNoise != null) {
+            tvOptimalNoise.setText("🎤 < " + userNoiseLimit + " dB");
+        }
+        if (tvOptimalLight != null) {
+            tvOptimalLight.setText("☀️ > " + userLightMin + " lux");
+        }
+        if (tvFirstLaunchNoise != null) {
+            tvFirstLaunchNoise.setText("🎤 < " + userNoiseLimit + " dB");
+        }
+        if (tvFirstLaunchLight != null) {
+            tvFirstLaunchLight.setText("☀️ > " + userLightMin + " lux");
+        }
     }
 }

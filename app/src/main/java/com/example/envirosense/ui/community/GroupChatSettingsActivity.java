@@ -10,9 +10,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.envirosense.R;
-import com.example.envirosense.data.AppDatabase;
-import com.example.envirosense.data.ChatMessageDao;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,8 +20,6 @@ import java.util.concurrent.Executors;
 public class GroupChatSettingsActivity extends AppCompatActivity {
 
     private String groupName;
-    private ExecutorService executorService;
-    private ChatMessageDao dao;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,24 +54,25 @@ public class GroupChatSettingsActivity extends AppCompatActivity {
         tvParticipants.setText("Members: " + totalParticipants);
         tvActiveStudents.setText("Active Now: " + activeMembers);
 
-        dao = AppDatabase.getInstance(this).chatMessageDao();
-        executorService = Executors.newSingleThreadExecutor();
-
         btnClearChat.setOnClickListener(v -> {
             new AlertDialog.Builder(this)
                     .setTitle("Clear Chat")
                     .setMessage("Are you sure you want to clear all messages in this group? This action cannot be undone.")
                     .setPositiveButton("Clear", (dialog, which) -> {
-                        executorService.execute(() -> {
-                            dao.deleteMessagesForGroup(groupName);
-                            runOnUiThread(() -> {
-                                Toast.makeText(GroupChatSettingsActivity.this, "Chat cleared", Toast.LENGTH_SHORT).show();
-                                Intent resultIntent = new Intent();
-                                resultIntent.putExtra("CHAT_CLEARED", true);
-                                setResult(RESULT_OK, resultIntent);
-                                finish();
-                            });
-                        });
+                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+                        db.collection("groups").document(groupName)
+                                .collection("messages")
+                                .get()
+                                .addOnSuccessListener(querySnapshot -> {
+                                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                                        doc.getReference().delete();
+                                    }
+                                    Toast.makeText(GroupChatSettingsActivity.this, "Chat cleared", Toast.LENGTH_SHORT).show();
+                                    Intent resultIntent = new Intent();
+                                    resultIntent.putExtra("CHAT_CLEARED", true);
+                                    setResult(RESULT_OK, resultIntent);
+                                    finish();
+                                });
                     })
                     .setNegativeButton("Cancel", null)
                     .show();
@@ -83,8 +82,5 @@ public class GroupChatSettingsActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (executorService != null) {
-            executorService.shutdown();
-        }
     }
 }

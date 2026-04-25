@@ -14,23 +14,23 @@ public interface FocusSessionDao {
     @Insert
     void insert(FocusSession session);
 
-    @Query("SELECT * FROM focus_sessions ORDER BY timestamp DESC")
-    List<FocusSession> getAllSessions();
+    @Query("SELECT * FROM focus_sessions WHERE userId = :userId ORDER BY timestamp DESC")
+    List<FocusSession> getAllSessions(String userId);
 
-    @Query("SELECT * FROM focus_sessions WHERE timestamp >= :startTime AND timestamp <= :endTime ORDER BY timestamp ASC")
-    List<FocusSession> getSessionsInRange(long startTime, long endTime);
+    @Query("SELECT * FROM focus_sessions WHERE userId = :userId AND timestamp >= :startTime AND timestamp <= :endTime ORDER BY timestamp ASC")
+    List<FocusSession> getSessionsInRange(String userId, long startTime, long endTime);
 
-    @Query("SELECT * FROM focus_sessions ORDER BY timestamp DESC LIMIT 1")
-    FocusSession getLastSession();
+    @Query("SELECT * FROM focus_sessions WHERE userId = :userId ORDER BY timestamp DESC LIMIT 1")
+    FocusSession getLastSession(String userId);
 
-    @Query("SELECT location, COUNT(id) as sessionCount, AVG(finalScore) as avgScore FROM focus_sessions GROUP BY location ORDER BY sessionCount DESC")
-    List<LocationStat> getLocationStats();
+    @Query("SELECT location, COUNT(id) as sessionCount, AVG(finalScore) as avgScore FROM focus_sessions WHERE userId = :userId GROUP BY location ORDER BY sessionCount DESC")
+    List<LocationStat> getLocationStats(String userId);
 
-    @Query("SELECT location, COUNT(id) as sessionCount, AVG(finalScore) as avgScore FROM focus_sessions WHERE timestamp >= :startTime AND timestamp <= :endTime GROUP BY location ORDER BY sessionCount DESC")
-    List<LocationStat> getLocationStatsInRange(long startTime, long endTime);
+    @Query("SELECT location, COUNT(id) as sessionCount, AVG(finalScore) as avgScore FROM focus_sessions WHERE userId = :userId AND timestamp >= :startTime AND timestamp <= :endTime GROUP BY location ORDER BY sessionCount DESC")
+    List<LocationStat> getLocationStatsInRange(String userId, long startTime, long endTime);
 
-    @Query("DELETE FROM focus_sessions")
-    void deleteAllSessions();
+    @Query("DELETE FROM focus_sessions WHERE userId = :userId")
+    void deleteAllSessions(String userId);
 
     @Delete
     void delete(FocusSession session);

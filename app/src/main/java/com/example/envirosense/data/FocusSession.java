@@ -9,6 +9,7 @@ public class FocusSession {
     @PrimaryKey(autoGenerate = true)
     public int id;
 
+    public String userId;
     public long timestamp;
     public int finalScore;
     public long durationMs;
@@ -21,7 +22,8 @@ public class FocusSession {
     public int noiseSpikes;
 
   
-    public FocusSession(long timestamp, int finalScore, long durationMs, String location, double avgNoise, float avgLight, int peakScore, int noiseSpikes) {
+    public FocusSession(String userId, long timestamp, int finalScore, long durationMs, String location, double avgNoise, float avgLight, int peakScore, int noiseSpikes) {
+        this.userId = userId;
         this.timestamp = timestamp;
         this.finalScore = finalScore;
         this.durationMs = durationMs;

@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_dark"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="28dp"
+        android:paddingEnd="28dp"
+        android:paddingTop="32dp"
+        android:paddingBottom="40dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Your Profile"
+            android:textColor="@color/white"
+            android:textSize="32sp"
+            android:fontFamily="@font/poppins_bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Update your details below."
+            android:textColor="@color/text_secondary"
+            android:textSize="16sp"
+            android:fontFamily="@font/poppins" />
+
+        <TextView
+            android:id="@+id/tv_profile_error"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:textColor="#FF6B6B"
+            android:textSize="14sp"
+            android:fontFamily="@font/poppins"
+            android:visibility="gone" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="12dp"
+            android:text="ABOUT YOU"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.1" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            app:boxStrokeColor="@color/primary_green"
+            app:boxStrokeWidth="1dp"
+            app:hintTextColor="@color/text_secondary"
+            app:boxBackgroundColor="@color/surface_dark"
+            app:boxCornerRadiusTopStart="26dp"
+            app:boxCornerRadiusTopEnd="26dp"
+            app:boxCornerRadiusBottomStart="26dp"
+            app:boxCornerRadiusBottomEnd="26dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Full name"
+                android:inputType="textPersonName"
+                android:textColor="@color/white"
+                android:textColorHint="@color/text_secondary"
+                android:fontFamily="@font/poppins"
+                android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp"
+            android:baselineAligned="false">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_age"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                app:boxStrokeColor="@color/primary_green"
+                app:boxStrokeWidth="1dp"
+                app:hintTextColor="@color/text_secondary"
+                app:boxBackgroundColor="@color/surface_dark"
+                app:boxCornerRadiusTopStart="26dp"
+                app:boxCornerRadiusTopEnd="26dp"
+                app:boxCornerRadiusBottomStart="26dp"
+                app:boxCornerRadiusBottomEnd="26dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_age"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Age"
+                    android:inputType="number"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/text_secondary"
+                    android:fontFamily="@font/poppins"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_gender"
+                android:layout_width="0dp"
+                android:layout_weight="1.5"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                app:boxStrokeColor="@color/primary_green"
+                app:boxStrokeWidth="1dp"
+                app:hintTextColor="@color/text_secondary"
+                app:boxBackgroundColor="@color/surface_dark"
+                app:boxCornerRadiusTopStart="26dp"
+                app:boxCornerRadiusTopEnd="26dp"
+                app:boxCornerRadiusBottomStart="26dp"
+                app:boxCornerRadiusBottomEnd="26dp">
+
+                <AutoCompleteTextView
+                    android:id="@+id/acv_gender"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Gender"
+                    android:inputType="none"
+                    android:textColor="@color/white"
+                    android:textColorHint="@color/text_secondary"
+                    android:fontFamily="@font/poppins"
+                    android:textSize="14sp" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="12dp"
+            android:text="YOUR STUDY PROFILE"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.1" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_goal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            app:boxStrokeColor="@color/primary_green"
+            app:boxStrokeWidth="1dp"
+            app:hintTextColor="@color/text_secondary"
+            app:boxBackgroundColor="@color/surface_dark"
+            app:boxCornerRadiusTopStart="26dp"
+            app:boxCornerRadiusTopEnd="26dp"
+            app:boxCornerRadiusBottomStart="26dp"
+            app:boxCornerRadiusBottomEnd="26dp">
+
+            <AutoCompleteTextView
+                android:id="@+id/acv_goal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Primary study goal"
+                android:inputType="none"
+                android:textColor="@color/white"
+                android:textColorHint="@color/text_secondary"
+                android:fontFamily="@font/poppins"
+                android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_environment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="28dp"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            app:boxStrokeColor="@color/primary_green"
+            app:boxStrokeWidth="1dp"
+            app:hintTextColor="@color/text_secondary"
+            app:boxBackgroundColor="@color/surface_dark"
+            app:boxCornerRadiusTopStart="26dp"
+            app:boxCornerRadiusTopEnd="26dp"
+            app:boxCornerRadiusBottomStart="26dp"
+            app:boxCornerRadiusBottomEnd="26dp">
+
+            <AutoCompleteTextView
+                android:id="@+id/acv_environment"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Preferred environment"
+                android:inputType="none"
+                android:textColor="@color/white"
+                android:textColorHint="@color/text_secondary"
+                android:fontFamily="@font/poppins"
+                android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_save_profile"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="SAVE CHANGES"
+            android:textColor="@color/background_dark"
+            android:textSize="16sp"
+            android:fontFamily="@font/poppins_bold"
+            app:backgroundTint="@color/primary_green"
+            app:cornerRadius="26dp"
+            app:elevation="0dp" />
+
+    </LinearLayout>
+</ScrollView>

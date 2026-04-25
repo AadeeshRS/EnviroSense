@@ -127,6 +127,7 @@
                     android:fontFamily="@font/poppins_bold" />
 
                 <TextView
+                    android:id="@+id/tv_focus_label"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="FOCUS"
@@ -233,7 +234,7 @@
                         android:id="@+id/tv_optimal_noise"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="○ 40-60 dB"
+                        android:text="🎤 40-60 dB"
                         android:textColor="@color/white"
                         android:textSize="14sp"
                         android:background="@drawable/bg_card_rounded"
@@ -255,32 +256,22 @@
                         android:paddingVertical="8dp"
                         android:layout_marginEnd="8dp" />
 
-                    <TextView
-                        android:id="@+id/tv_optimal_time"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="⌚ Morning"
-                        android:textColor="@color/white"
-                        android:textSize="14sp"
-                        android:background="@drawable/bg_card_rounded"
-                        android:backgroundTint="#2A2C2E"
-                        android:paddingHorizontal="12dp"
-                        android:paddingVertical="8dp" />
+
 
                 </LinearLayout>
             </HorizontalScrollView>
 
         </LinearLayout>
 
-        <!-- 1.2 FIRST LAUNCH -->
+        
         <include layout="@layout/layout_home_first_launch" />
 
-        <!-- 1.3 ACTIVE SESSION -->
+        
         <include layout="@layout/layout_home_active_session" />
 
     </FrameLayout>
 
-    <!-- 1.6 POOR ENVIRONMENT Inline Banner -->
+    
     <LinearLayout
         android:id="@+id/banner_poor_env"
         android:layout_width="match_parent"

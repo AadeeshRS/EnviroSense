@@ -11,6 +11,8 @@ import android.provider.MediaStore;
 
 import com.example.envirosense.data.AppDatabase;
 import com.example.envirosense.data.FocusSession;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -29,8 +31,10 @@ public class CsvExporter {
     public static void exportDataToCsv(Context context, ExportCallback callback) {
         new Thread(() -> {
             try {
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                String uid = user != null ? user.getUid() : "guest";
                 List<FocusSession> sessions = AppDatabase.getInstance(context)
-                        .focusSessionDao().getAllSessions();
+                        .focusSessionDao().getAllSessions(uid);
 
                 if (sessions.isEmpty()) {
                     post(callback::onError, "No sessions found to export.");

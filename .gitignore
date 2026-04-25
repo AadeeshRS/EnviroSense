@@ -27,4 +27,5 @@ local.properties
 
 # NEW: Local planning and AI prompt files
 firebase_plan.md
-gemini_firebase_prompt.md
+gemini_firebase_prompt.md
+firebase_handoff_master_plan.md

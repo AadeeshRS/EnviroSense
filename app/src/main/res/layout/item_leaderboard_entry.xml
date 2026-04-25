@@ -20,7 +20,8 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" 
+        android:fontFamily="@font/poppins_bold" />
 
     <!-- Avatar circle with initials -->
     <TextView
@@ -37,7 +38,8 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/tv_rank"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" 
+        android:fontFamily="@font/poppins_bold" />
 
     <!-- Username -->
     <TextView
@@ -55,7 +57,8 @@
         app:layout_constraintEnd_toStartOf="@id/tv_score_badge"
         app:layout_constraintStart_toEndOf="@id/tv_avatar"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed" />
+        app:layout_constraintVertical_chainStyle="packed" 
+        android:fontFamily="@font/poppins_bold" />
 
     <!-- Hours label -->
     <TextView
@@ -69,7 +72,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/tv_score_badge"
         app:layout_constraintStart_toEndOf="@id/tv_avatar"
-        app:layout_constraintTop_toBottomOf="@id/tv_username" />
+        app:layout_constraintTop_toBottomOf="@id/tv_username" 
+        android:fontFamily="@font/poppins" />
 
     <!-- Score badge on right -->
     <TextView
@@ -85,6 +89,7 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" 
+        android:fontFamily="@font/poppins_bold" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

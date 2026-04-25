@@ -19,7 +19,8 @@
         android:text="📚"
         android:textSize="22sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" 
+        android:fontFamily="@font/poppins" />
 
     <!-- Custom User Uploaded Icon -->
     <androidx.cardview.widget.CardView
@@ -55,7 +56,8 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/btn_more_options"
         app:layout_constraintStart_toEndOf="@id/tv_group_emoji"
-        app:layout_constraintTop_toTopOf="@id/tv_group_emoji" />
+        app:layout_constraintTop_toTopOf="@id/tv_group_emoji" 
+        android:fontFamily="@font/poppins_bold" />
 
     <!-- 3-Dot Options Menu (Hidden by default, used for Compact Mode) -->
     <ImageView
@@ -105,7 +107,8 @@
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/tv_group_emoji"
-        app:layout_constraintTop_toBottomOf="@id/subject_scroll" />
+        app:layout_constraintTop_toBottomOf="@id/subject_scroll" 
+        android:fontFamily="@font/poppins" />
 
     <!-- Stats row -->
     <LinearLayout
@@ -130,14 +133,16 @@
                 android:text="12"
                 android:textColor="@color/white"
                 android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textStyle="bold" 
+        android:fontFamily="@font/poppins_bold" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Members"
                 android:textColor="@color/text_secondary"
-                android:textSize="11sp" />
+                android:textSize="11sp" 
+        android:fontFamily="@font/poppins" />
         </LinearLayout>
 
         <!-- Avg Score stat -->
@@ -154,14 +159,16 @@
                 android:text="78"
                 android:textColor="@color/primary_green"
                 android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textStyle="bold" 
+        android:fontFamily="@font/poppins_bold" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Avg Focus Score"
                 android:textColor="@color/text_secondary"
-                android:textSize="11sp" />
+                android:textSize="11sp" 
+        android:fontFamily="@font/poppins" />
         </LinearLayout>
 
         <!-- View button -->
@@ -173,7 +180,8 @@
             android:text="View"
             android:textSize="12sp"
             app:backgroundTint="@color/primary_green"
-            android:textColor="@color/black" />
+            android:textColor="@color/black" 
+        android:fontFamily="@font/poppins" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -131,6 +131,17 @@ public class CreateCommunityBottomSheet extends BottomSheetDialogFragment {
                 "Just now"
         );
         newGroup.customIconBitmap = selectedBitmap;
+        
+        if (selectedBitmap != null) {
+            try {
+                android.graphics.Bitmap scaled = android.graphics.Bitmap.createScaledBitmap(selectedBitmap, 128, 128, true);
+                java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                scaled.compress(android.graphics.Bitmap.CompressFormat.JPEG, 70, baos);
+                newGroup.customIconBase64 = android.util.Base64.encodeToString(baos.toByteArray(), android.util.Base64.DEFAULT);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         CommunityViewModel viewModel = new ViewModelProvider(requireActivity()).get(CommunityViewModel.class);
         viewModel.createGroup(newGroup);

@@ -45,10 +45,19 @@ public class GroupDetailBottomSheet extends BottomSheetDialogFragment {
 
         // Header
         TextView tvEmoji = view.findViewById(R.id.tv_sheet_emoji);
+        android.widget.ImageView ivIcon = view.findViewById(R.id.iv_sheet_icon);
         TextView tvName = view.findViewById(R.id.tv_sheet_group_name);
         TextView tvDesc = view.findViewById(R.id.tv_sheet_description);
 
-        tvEmoji.setText(group.emoji);
+        if (group.customIconBitmap != null) {
+            ivIcon.setVisibility(View.VISIBLE);
+            ivIcon.setImageBitmap(group.customIconBitmap);
+            tvEmoji.setVisibility(View.GONE);
+        } else {
+            ivIcon.setVisibility(View.GONE);
+            tvEmoji.setVisibility(View.VISIBLE);
+            tvEmoji.setText(group.emoji);
+        }
         tvName.setText(group.groupName);
         tvDesc.setText(group.description);
 

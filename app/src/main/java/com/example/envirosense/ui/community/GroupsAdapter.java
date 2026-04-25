@@ -65,7 +65,19 @@ public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.ViewHolder
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         StudyGroup group = items.get(position);
         
-        if (group.customIconBitmap != null) {
+        if (group.customIconBase64 != null && !group.customIconBase64.isEmpty()) {
+            try {
+                byte[] decodedBytes = android.util.Base64.decode(group.customIconBase64, android.util.Base64.DEFAULT);
+                android.graphics.Bitmap bmp = android.graphics.BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                holder.ivGroupIcon.setVisibility(View.VISIBLE);
+                holder.ivGroupIcon.setImageBitmap(bmp);
+                holder.tvGroupEmoji.setVisibility(View.INVISIBLE);
+            } catch (Exception e) {
+                holder.ivGroupIcon.setVisibility(View.INVISIBLE);
+                holder.tvGroupEmoji.setVisibility(View.VISIBLE);
+                holder.tvGroupEmoji.setText(group.emoji);
+            }
+        } else if (group.customIconBitmap != null) {
             holder.ivGroupIcon.setVisibility(View.VISIBLE);
             holder.ivGroupIcon.setImageBitmap(group.customIconBitmap);
             holder.tvGroupEmoji.setVisibility(View.INVISIBLE);

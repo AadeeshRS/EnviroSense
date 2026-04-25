@@ -86,6 +86,9 @@ public class SettingsFragment extends Fragment {
 
         rowDelete.setOnClickListener(v -> {
             DeleteConfirmDialog dialog = new DeleteConfirmDialog(() -> {
+                if (requireActivity() instanceof com.example.envirosense.MainActivity) {
+                    ((com.example.envirosense.MainActivity) requireActivity()).navigateToHome();
+                }
             });
             dialog.show(getParentFragmentManager(), "DeleteDialog");
         });
@@ -106,5 +109,14 @@ public class SettingsFragment extends Fragment {
         });
 
         return view;
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (!hidden && prefs != null && tvNoiseLimitValue != null && tvLightMinValue != null) {
+            tvNoiseLimitValue.setText(prefs.getInt("noise_limit", 65) + " dB");
+            tvLightMinValue.setText(prefs.getInt("light_min", 200) + " lux");
+        }
     }
 }

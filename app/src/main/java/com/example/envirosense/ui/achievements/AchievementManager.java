@@ -15,6 +15,8 @@ import com.example.envirosense.R;
 import com.example.envirosense.data.Achievement;
 import com.example.envirosense.data.AppDatabase;
 import com.example.envirosense.data.FocusSession;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +43,9 @@ public class AchievementManager {
 
     public static void checkUnlocks(Context context) {
         new Thread(() -> {
-            List<FocusSession> sessions = AppDatabase.getInstance(context).focusSessionDao().getAllSessions();
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            String uid = user != null ? user.getUid() : "guest";
+            List<FocusSession> sessions = AppDatabase.getInstance(context).focusSessionDao().getAllSessions(uid);
 
             if (sessions.isEmpty()) return;
 

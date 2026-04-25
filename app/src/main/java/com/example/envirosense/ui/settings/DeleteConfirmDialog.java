@@ -14,6 +14,13 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import com.example.envirosense.R;
 import com.example.envirosense.data.AppDatabase;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class DeleteConfirmDialog extends DialogFragment {
 
@@ -41,12 +48,25 @@ public class DeleteConfirmDialog extends DialogFragment {
 
         btnDelete.setOnClickListener(v -> {
             new Thread(() -> {
-                AppDatabase.getInstance(requireContext()).focusSessionDao().deleteAllSessions();
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                String uid = user != null ? user.getUid() : "guest";
+                AppDatabase.getInstance(requireContext()).focusSessionDao().deleteAllSessions(uid);
 
                 requireContext().getSharedPreferences("EnviroSenseAchieve", android.content.Context.MODE_PRIVATE)
                         .edit()
                         .clear()
                         .apply();
+
+                if (user != null) {
+                    Map<String, Object> resetStats = new HashMap<>();
+                    resetStats.put("totalHours", 0.0);
+                    resetStats.put("averageScore", 0);
+                    resetStats.put("sessionCount", 0);
+                    FirebaseFirestore.getInstance()
+                            .collection("users")
+                            .document(user.getUid())
+                            .set(resetStats, SetOptions.merge());
+                }
 
                 requireActivity().runOnUiThread(() -> {
                     Toast.makeText(getContext(), "Data permanently erased", Toast.LENGTH_SHORT).show();

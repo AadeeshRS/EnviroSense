@@ -15,6 +15,8 @@ import com.example.envirosense.R;
 import com.example.envirosense.data.Achievement;
 import com.example.envirosense.data.AppDatabase;
 import com.example.envirosense.data.FocusSession;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +58,9 @@ public class AchievementsFragment extends Fragment {
 
     private void calculateTotalHours() {
         new Thread(() -> {
-            List<FocusSession> sessions = AppDatabase.getInstance(requireContext()).focusSessionDao().getAllSessions();
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            String uid = user != null ? user.getUid() : "guest";
+            List<FocusSession> sessions = AppDatabase.getInstance(requireContext()).focusSessionDao().getAllSessions(uid);
 
             long totalDurationMs = 0;
             double totalAccumulatedScore = 0;

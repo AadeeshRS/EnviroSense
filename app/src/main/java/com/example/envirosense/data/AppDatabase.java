@@ -5,13 +5,10 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-import com.example.envirosense.data.models.ChatMessage;
-
-@Database(entities = {FocusSession.class, ChatMessage.class}, version = 3, exportSchema = false)
+@Database(entities = {FocusSession.class}, version = 6, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract FocusSessionDao focusSessionDao();
-    public abstract ChatMessageDao chatMessageDao();
 
     private static volatile AppDatabase INSTANCE;
 

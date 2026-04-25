@@ -4,7 +4,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_dark">
+    android:background="@color/background_dark"
+    android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
@@ -17,37 +18,36 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar_chat"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="64dp"
             android:contentInsetStart="0dp"
             android:contentInsetStartWithNavigation="0dp"
             android:paddingStart="0dp"
-            android:paddingEnd="16dp"
+            android:paddingEnd="12dp"
             app:navigationIcon="@drawable/ic_arrow_back"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <LinearLayout
                     android:id="@+id/ll_group_info_container"
-                    android:layout_marginTop="12dp"
                     android:layout_width="0dp"
                     android:layout_weight="1"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:layout_marginBottom="10dp"
+                    android:paddingStart="4dp"
                     android:background="?attr/selectableItemBackground"
                     android:clickable="true"
                     android:focusable="true">
 
                     <TextView
                         android:id="@+id/tv_group_emoji_chat"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
                         android:background="@drawable/bg_circular_progress"
                         android:backgroundTint="#2A2C2E"
                         android:gravity="center"
@@ -57,9 +57,9 @@
 
                     <androidx.cardview.widget.CardView
                         android:id="@+id/cv_group_icon_chat_container"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
-                        app:cardCornerRadius="20dp"
+                        android:layout_width="42dp"
+                        android:layout_height="42dp"
+                        app:cardCornerRadius="21dp"
                         app:cardBackgroundColor="@android:color/transparent"
                         app:cardElevation="0dp"
                         android:visibility="gone">
@@ -85,15 +85,17 @@
                             android:maxLines="1"
                             android:text="Group Name"
                             android:textColor="@color/white"
-                            android:textSize="18sp"
-                            android:textStyle="bold" />
+                            android:textSize="17sp"
+                            android:textStyle="bold"
+                            android:fontFamily="@font/poppins" />
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="tap here for group info"
                             android:textColor="@color/text_secondary"
-                            android:textSize="12sp" />
+                            android:textSize="12sp"
+                            android:fontFamily="@font/poppins" />
                     </LinearLayout>
                 </LinearLayout>
 
@@ -101,7 +103,7 @@
                     android:id="@+id/btn_start_session"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:layout_marginEnd="16dp"
+                    android:layout_marginEnd="4dp"
                     android:background="@drawable/bg_circle_black_green_border"
                     android:src="@drawable/ic_add_black"
                     app:tint="@color/primary_green"
@@ -109,14 +111,20 @@
             </LinearLayout>
 
         </androidx.appcompat.widget.Toolbar>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#2A2C2E" />
+
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_chat_messages"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
         android:clipToPadding="false"
         app:layout_constraintTop_toBottomOf="@id/appBarLayout"
         app:layout_constraintBottom_toTopOf="@id/layout_chat_input" />
@@ -125,10 +133,13 @@
         android:id="@+id/layout_chat_input"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#0E1111"
+        android:background="@color/background_dark"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="15dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
@@ -140,9 +151,9 @@
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:paddingTop="4dp"
-            android:paddingBottom="4dp">
+            android:paddingEnd="8dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp">
 
             <EditText
                 android:id="@+id/et_message_input"
@@ -155,19 +166,20 @@
                 android:maxLines="4"
                 android:textColor="@color/white"
                 android:textColorHint="@color/text_secondary"
-                android:textSize="16sp" />
+                android:textSize="15sp"
+                android:fontFamily="@font/poppins" />
         </LinearLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/btn_send_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="10dp"
             android:src="@drawable/ic_send"
             app:backgroundTint="@color/primary_green"
             app:tint="@color/white"
             app:fabSize="mini"
-            app:elevation="0dp"/>
+            app:elevation="2dp" />
 
     </LinearLayout>
 

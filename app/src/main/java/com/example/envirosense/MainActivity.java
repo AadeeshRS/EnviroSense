@@ -1,6 +1,9 @@
 package com.example.envirosense;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -14,6 +17,7 @@ import androidx.fragment.app.Fragment;
 
 import com.example.envirosense.ui.achievements.AchievementsFragment;
 import com.example.envirosense.ui.analytics.AnalyticsFragment;
+import com.example.envirosense.ui.auth.LoginActivity;
 import com.example.envirosense.ui.community.CommunityFragment;
 import com.example.envirosense.ui.community.MyCommunityFragment;
 import com.example.envirosense.ui.community.MyResourcesFragment;
@@ -23,17 +27,18 @@ import com.example.envirosense.ui.settings.SettingsFragment;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class MainActivity extends AppCompatActivity {
-
-    // ── Core fragments ──────────────────────────────────────────────────────────
     private final Fragment homeFragment = new HomeFragment();
     private final Fragment analyticsFragment = new AnalyticsFragment();
     private final Fragment communityFragment = new CommunityFragment();
     private final Fragment settingsFragment = new SettingsFragment();
     private final Fragment achievementsFragment = new AchievementsFragment();
+    private final Fragment profileFragment = new com.example.envirosense.ui.auth.ProfileFragment();
 
-    // ── Community sub-fragments ─────────────────────────────────────────────────
     private final Fragment myCommunityFragment = new MyCommunityFragment();
     private final Fragment searchCommunityFragment = new SearchCommunityFragment();
     private final Fragment myResourcesFragment = new MyResourcesFragment();
@@ -44,27 +49,28 @@ public class MainActivity extends AppCompatActivity {
     private MaterialToolbar toolbar;
     private BottomNavigationView bottomNav;
     private NavigationView navView;
-
-    /** Whether the community-specific bottom nav is currently shown. */
     private boolean isCommunityNavActive = false;
 
-    /** Prevents infinite loops when syncing bottom nav ↔ drawer. */
     private boolean isSyncing = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            startActivity(new Intent(this, LoginActivity.class));
+            finish();
+            return;
+        }
+
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
 
-        // Setup Toolbar
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Apply top inset (status bar) to the parent LinearLayout so the toolbar
-        // sits naturally below the status bar with its internal icon/title alignment
-        // intact. Bottom inset goes to the bottom nav. Consume insets to prevent
-        // propagation to child views.
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(0, systemBars.top, 0, 0);
@@ -75,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
             return WindowInsetsCompat.CONSUMED;
         });
 
-        // Setup Drawer Layout
+        
         drawerLayout = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawerLayout, toolbar,
@@ -84,11 +90,10 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-        // Tint the hamburger icon to white
+       
         toggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.white, getTheme()));
 
-        // Add all fragments (hide all except home) — preserves the existing lifecycle
-        // pattern
+       
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, myResourcesFragment, "myResources").hide(myResourcesFragment)
@@ -99,11 +104,12 @@ public class MainActivity extends AppCompatActivity {
                     .add(R.id.fragment_container, communityFragment, "community").hide(communityFragment)
                     .add(R.id.fragment_container, analyticsFragment, "analytics").hide(analyticsFragment)
                     .add(R.id.fragment_container, achievementsFragment, "achievements").hide(achievementsFragment)
+                    .add(R.id.fragment_container, profileFragment, "profile").hide(profileFragment)
                     .add(R.id.fragment_container, homeFragment, "home")
                     .commit();
         }
 
-        // Setup Bottom Navigation
+
         bottomNav = findViewById(R.id.bottom_nav);
         bottomNav.setOnItemSelectedListener(item -> {
             if (isSyncing)
@@ -113,9 +119,9 @@ public class MainActivity extends AppCompatActivity {
             int id = item.getItemId();
 
             if (isCommunityNavActive) {
-                // ── Community nav item handling ─────────────────────────────────
+
                 if (id == R.id.navigation_home) {
-                    // Exit community nav and go home
+
                     exitCommunityNav();
                     switchFragment(R.id.navigation_home);
                     navView.setCheckedItem(R.id.navigation_home);
@@ -136,13 +142,19 @@ public class MainActivity extends AppCompatActivity {
                     showCommunitySubFragment(myResourcesFragment, "My Resources");
                 }
             } else {
-                // ── Global nav item handling ────────────────────────────────────
+                
                 if (id == R.id.navigation_community) {
                     enterCommunityNav();
                     navView.setCheckedItem(R.id.navigation_community);
                 } else {
                     switchFragment(id);
                     navView.setCheckedItem(id);
+                    bottomNav.post(() -> {
+                        boolean wasSyncing = isSyncing;
+                        isSyncing = true;
+                        bottomNav.getMenu().findItem(id).setChecked(true);
+                        isSyncing = wasSyncing;
+                    });
                 }
             }
 
@@ -158,22 +170,26 @@ public class MainActivity extends AppCompatActivity {
 
             int id = item.getItemId();
 
-            if (id == R.id.navigation_community) {
-                // Always enter community nav, regardless of current nav state
+            if (id == R.id.navigation_sign_out) {
+                FirebaseAuth.getInstance().signOut();
+                getSharedPreferences("EnviroSensePrefs", Context.MODE_PRIVATE)
+                        .edit().remove("user_name").apply();
+
+                startActivity(new Intent(this, LoginActivity.class));
+                finish();
+                isSyncing = false;
+                return true;
+            } else if (id == R.id.navigation_community) {
                 if (!isCommunityNavActive) {
                     enterCommunityNav();
                 }
-                // Already in community hub — nothing to do
-            } else if (id == R.id.navigation_settings) {
-                // Settings has no bottom nav tab — exit community nav if needed,
-                // then deselect all bottom nav items
+            } else if (id == R.id.navigation_settings || id == R.id.navigation_profile) {
                 if (isCommunityNavActive) {
                     exitCommunityNav();
                 }
                 switchFragment(id);
                 clearBottomNavSelection();
             } else {
-                // Any other destination exits community nav
                 if (isCommunityNavActive) {
                     exitCommunityNav();
                 }
@@ -191,34 +207,26 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
-        // Set Home as checked by default
         navView.setCheckedItem(R.id.navigation_home);
+        loadNavHeader();
     }
 
-    // ────────────────────────────────────────────────────────────────────────────
-    // Community nav helpers
-    // ────────────────────────────────────────────────────────────────────────────
-
-    /**
-     * Swaps the bottom nav to the community-specific menu and displays
-     * the community hub (Leaderboard). The Leaderboard is pre-selected.
-     */
+   
     private void enterCommunityNav() {
         isCommunityNavActive = true;
         bottomNav.getMenu().clear();
         bottomNav.inflateMenu(R.menu.bottom_nav_community_menu);
 
-        // Show the leaderboard fragment
         if (activeFragment != communityFragment) {
             getSupportFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
                     .hide(activeFragment)
                     .show(communityFragment)
                     .commit();
             activeFragment = communityFragment;
         }
         toolbar.setTitle("Leaderboard");
-        // Defer selection so BottomNavigationView finishes its previous click handling
-        // before attempting to select the newly inflated menu item.
+       
         bottomNav.post(() -> {
             boolean wasSyncing = isSyncing;
             isSyncing = true;
@@ -228,24 +236,18 @@ public class MainActivity extends AppCompatActivity {
         updateToolbarButtons(communityFragment);
     }
 
-    /**
-     * Restores the global bottom nav menu. Called before navigating away
-     * from any community section.
-     */
+    
     private void exitCommunityNav() {
         isCommunityNavActive = false;
         bottomNav.getMenu().clear();
         bottomNav.inflateMenu(R.menu.bottom_nav_menu);
     }
 
-    /**
-     * Shows one of the three community sub-fragments (My Groups, Search,
-     * Resources).
-     * Does not swap the nav bar — already in community nav mode.
-     */
+    
     private void showCommunitySubFragment(Fragment target, String title) {
         if (target != activeFragment) {
             getSupportFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
                     .hide(activeFragment)
                     .show(target)
                     .commit();
@@ -255,10 +257,7 @@ public class MainActivity extends AppCompatActivity {
         updateToolbarButtons(target);
     }
 
-    /**
-     * Deselects all items in the current bottom nav menu.
-     * Used when entering Community hub (no sub-item active) or Settings.
-     */
+   
     private void clearBottomNavSelection() {
         bottomNav.getMenu().setGroupCheckable(0, true, false);
         for (int i = 0; i < bottomNav.getMenu().size(); i++) {
@@ -267,14 +266,6 @@ public class MainActivity extends AppCompatActivity {
         bottomNav.getMenu().setGroupCheckable(0, true, true);
     }
 
-    // ────────────────────────────────────────────────────────────────────────────
-    // Fragment switching
-    // ────────────────────────────────────────────────────────────────────────────
-
-    /**
-     * Central method for switching top-level fragments.
-     * Both bottom nav and drawer call this for standard (non-community) navigation.
-     */
     private void switchFragment(int itemId) {
         Fragment targetFragment = null;
         String title = "EnviroSense";
@@ -291,6 +282,9 @@ public class MainActivity extends AppCompatActivity {
         } else if (itemId == R.id.navigation_achieve) {
             targetFragment = achievementsFragment;
             title = "Achievements";
+        } else if (itemId == R.id.navigation_profile) {
+            targetFragment = profileFragment;
+            title = "Profile";
         } else if (itemId == R.id.navigation_settings) {
             targetFragment = settingsFragment;
             title = "Settings";
@@ -298,6 +292,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (targetFragment != null && targetFragment != activeFragment) {
             getSupportFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
                     .hide(activeFragment)
                     .show(targetFragment)
                     .commit();
@@ -323,14 +318,45 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // ────────────────────────────────────────────────────────────────────────────
-    // Public API for fragments
-    // ────────────────────────────────────────────────────────────────────────────
+    private void loadNavHeader() {
+        android.view.View headerView = navView.getHeaderView(0);
+        TextView tvAvatar = headerView.findViewById(R.id.nav_header_avatar);
+        TextView tvName = headerView.findViewById(R.id.nav_header_name);
+        TextView tvEmail = headerView.findViewById(R.id.nav_header_email);
 
-    /**
-     * Public method for fragments to programmatically navigate to the Analytics
-     * tab. Used by HomeFragment after a session is saved.
-     */
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user != null && tvEmail != null) {
+            tvEmail.setText(user.getEmail() != null ? user.getEmail() : "");
+        }
+
+        String cachedName = getSharedPreferences("EnviroSensePrefs", Context.MODE_PRIVATE)
+                .getString("user_name", null);
+
+        if (cachedName != null && tvName != null && tvAvatar != null) {
+            tvName.setText(cachedName);
+            tvAvatar.setText(cachedName.substring(0, 1).toUpperCase());
+        } else if (user != null) {
+            FirebaseFirestore.getInstance()
+                    .collection("users")
+                    .document(user.getUid())
+                    .get()
+                    .addOnSuccessListener(doc -> {
+                        String name = doc.getString("name");
+                        if (name != null && tvName != null && tvAvatar != null) {
+                            tvName.setText(name);
+                            tvAvatar.setText(name.substring(0, 1).toUpperCase());
+                            getSharedPreferences("EnviroSensePrefs", Context.MODE_PRIVATE)
+                                    .edit().putString("user_name", name).apply();
+                        }
+                    });
+        }
+    }
+
+    public void refreshNavHeader() {
+        loadNavHeader();
+    }
+
+   
     public void navigateToAnalytics() {
         if (analyticsFragment != activeFragment) {
             if (isCommunityNavActive) {
@@ -342,9 +368,30 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void navigateToHome() {
+        if (homeFragment != activeFragment) {
+            if (isCommunityNavActive) {
+                exitCommunityNav();
+            }
+            switchFragment(R.id.navigation_home);
+            clearBottomNavSelection();
+            navView.setCheckedItem(R.id.navigation_home);
+        }
+    }
+
+    public void navigateToSettings() {
+        if (settingsFragment != activeFragment) {
+            if (isCommunityNavActive) {
+                exitCommunityNav();
+            }
+            switchFragment(R.id.navigation_settings);
+            clearBottomNavSelection();
+            navView.setCheckedItem(R.id.navigation_settings);
+        }
+    }
+
     @Override
     public void onBackPressed() {
-        // Close drawer on back press if it's open, otherwise use default behavior
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
         } else {

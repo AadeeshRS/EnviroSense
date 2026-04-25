@@ -23,6 +23,8 @@ import java.util.Collections;
 import com.example.envirosense.R;
 import com.example.envirosense.data.AppDatabase;
 import com.example.envirosense.data.FocusSession;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.List;
 
@@ -150,15 +152,17 @@ public class AnalyticsFragment extends Fragment {
 
     private void loadLocations() {
         new Thread(() -> {
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            String uid = user != null ? user.getUid() : "guest";
             List<com.example.envirosense.data.LocationStat> stats;
             if (currentFilterStartTime <= 0) {
                 stats = AppDatabase.getInstance(requireContext())
                         .focusSessionDao()
-                        .getLocationStats();
+                        .getLocationStats(uid);
             } else {
                 stats = AppDatabase.getInstance(requireContext())
                         .focusSessionDao()
-                        .getLocationStatsInRange(currentFilterStartTime, currentFilterEndTime);
+                        .getLocationStatsInRange(uid, currentFilterStartTime, currentFilterEndTime);
             }
 
             requireActivity().runOnUiThread(() -> {
@@ -176,15 +180,17 @@ public class AnalyticsFragment extends Fragment {
 
     private void loadSessions() {
         new Thread(() -> {
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            String uid = user != null ? user.getUid() : "guest";
             List<FocusSession> sessions;
             if (currentFilterStartTime <= 0) {
                 sessions = AppDatabase.getInstance(requireContext())
                         .focusSessionDao()
-                        .getAllSessions();
+                        .getAllSessions(uid);
             } else {
                 sessions = AppDatabase.getInstance(requireContext())
                         .focusSessionDao()
-                        .getSessionsInRange(currentFilterStartTime, currentFilterEndTime);
+                        .getSessionsInRange(uid, currentFilterStartTime, currentFilterEndTime);
             }
 
             requireActivity().runOnUiThread(() -> {

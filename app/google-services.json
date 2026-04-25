@@ -12,7 +12,20 @@
           "package_name": "com.example.envirosense"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "68067262913-tc97dm5jukrobk2te53lm2gms5hhc7n8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.envirosense",
+            "certificate_hash": "7cf6ada6c2e616e5c341b00e138b6c285a51f6b5"
+          }
+        },
+        {
+          "client_id": "68067262913-ja0l5qfihi1rbbv28oqek2q5tq775i75.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCdwJnmpaDiceDC_ZtquFP8-D1ccKE_ZuU"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "68067262913-ja0l5qfihi1rbbv28oqek2q5tq775i75.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
