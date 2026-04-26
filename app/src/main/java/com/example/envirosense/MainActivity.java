@@ -90,10 +90,21 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout.addDrawerListener(toggle);
         toggle.syncState();
 
-       
         toggle.getDrawerArrowDrawable().setColor(getResources().getColor(R.color.white, getTheme()));
 
-       
+        drawerLayout.addDrawerListener(new DrawerLayout.SimpleDrawerListener() {
+            @Override
+            public void onDrawerStateChanged(int newState) {
+                if (newState == androidx.drawerlayout.widget.DrawerLayout.STATE_DRAGGING || newState == androidx.drawerlayout.widget.DrawerLayout.STATE_SETTLING) {
+                    boolean personalActive = ((HomeFragment) homeFragment).isTrackingActive();
+                    boolean groupActive = com.example.envirosense.ui.community.SharedFocusTracker.getInstance().isTracking();
+                    android.view.MenuItem returnItem = navView.getMenu().findItem(R.id.navigation_return_session);
+                    if (returnItem != null) {
+                        returnItem.setVisible(personalActive || groupActive);
+                    }
+                }
+            }
+        });
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.fragment_container, myResourcesFragment, "myResources").hide(myResourcesFragment)
@@ -170,7 +181,22 @@ public class MainActivity extends AppCompatActivity {
 
             int id = item.getItemId();
 
-            if (id == R.id.navigation_sign_out) {
+            if (id == R.id.navigation_return_session) {
+                if (((HomeFragment) homeFragment).isTrackingActive()) {
+                    navigateToHome();
+                } else if (com.example.envirosense.ui.community.SharedFocusTracker.getInstance().isTracking()) {
+                    android.content.SharedPreferences prefs = getSharedPreferences("EnviroSensePrefs", Context.MODE_PRIVATE);
+                    Intent intent = new Intent(MainActivity.this, com.example.envirosense.ui.community.GroupSessionActivity.class);
+                    intent.putExtra("GROUP_NAME", prefs.getString("ACTIVE_GROUP_NAME", ""));
+                    intent.putExtra("GROUP_EMOJI", prefs.getString("ACTIVE_GROUP_EMOJI", ""));
+                    intent.putExtra("AVG_SCORE", prefs.getInt("ACTIVE_GROUP_AVG_SCORE", 72));
+                    intent.putExtra("ACTIVE_MEMBERS", prefs.getInt("ACTIVE_GROUP_MEMBERS", 0));
+                    startActivity(intent);
+                }
+                drawerLayout.closeDrawer(GravityCompat.START);
+                isSyncing = false;
+                return true;
+            } else if (id == R.id.navigation_sign_out) {
                 FirebaseAuth.getInstance().signOut();
                 getSharedPreferences("EnviroSensePrefs", Context.MODE_PRIVATE)
                         .edit().remove("user_name").apply();

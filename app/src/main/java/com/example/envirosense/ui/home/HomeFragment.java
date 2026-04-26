@@ -642,4 +642,8 @@ public class HomeFragment extends Fragment implements SensorEventListener {
             tvFirstLaunchLight.setText("☀️ > " + userLightMin + " lux");
         }
     }
+
+    public boolean isTrackingActive() {
+        return isTracking;
+    }
 }

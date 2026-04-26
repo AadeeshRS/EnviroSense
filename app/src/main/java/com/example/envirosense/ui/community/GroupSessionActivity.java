@@ -78,6 +78,21 @@ public class GroupSessionActivity extends AppCompatActivity {
         tvNoise.setText("🎤 < " + noiseLimit + " dB");
         tvLight.setText("☀ > " + lightMin + " lux");
 
+        android.content.SharedPreferences prefs = getSharedPreferences("EnviroSensePrefs", Context.MODE_PRIVATE);
+        boolean trackerRunning = SharedFocusTracker.getInstance().isTracking();
+        String activeGroupName = prefs.getString("ACTIVE_GROUP_NAME", null);
+
+        if (trackerRunning && groupName != null && groupName.equals(activeGroupName)) {
+            isTrackingActive = true;
+            btnJoin.setText("Leave Session");
+            btnJoin.setBackgroundColor(getResources().getColor(R.color.error_red, getTheme()));
+            setupTrackerCallback();
+        } else if (activeMembers > 0) {
+            btnJoin.setText("Join Session");
+        } else {
+            btnJoin.setText("Start Session");
+        }
+
         btnJoin.setOnClickListener(v -> {
             if (!isTrackingActive) {
                 checkPermissionsAndStart();
@@ -165,17 +180,7 @@ public class GroupSessionActivity extends AppCompatActivity {
         }
     }
 
-    private void startTracking() {
-        isTrackingActive = true;
-        btnJoin.setText("End Session");
-        btnJoin.setBackgroundColor(getResources().getColor(R.color.error_red, getTheme()));
-
-        int noiseLimit = getSharedPreferences("EnviroSensePrefs", Context.MODE_PRIVATE).getInt("noise_limit", 70);
-        int lightMin = getSharedPreferences("EnviroSensePrefs", Context.MODE_PRIVATE).getInt("light_min", 300);
-
-        tvNoise.setText("🎤 < " + noiseLimit + " dB");
-        tvLight.setText("☀ > " + lightMin + " lux");
-
+    private void setupTrackerCallback() {
         SharedFocusTracker tracker = SharedFocusTracker.getInstance();
         tracker.setCallback((score, noiseDb, lux, elapsedTimeMillis) -> {
             long totalSeconds = elapsedTimeMillis / 1000;
@@ -194,16 +199,40 @@ public class GroupSessionActivity extends AppCompatActivity {
             if (progressFocus != null)
                 progressFocus.setProgress(displayedScore);
 
-            if (noiseDb > noiseLimit) {
+            int currentNoiseLimit = getSharedPreferences("EnviroSensePrefs", Context.MODE_PRIVATE).getInt("noise_limit", 70);
+            int currentLightMin = getSharedPreferences("EnviroSensePrefs", Context.MODE_PRIVATE).getInt("light_min", 300);
+
+            if (noiseDb > currentNoiseLimit) {
                 triggerNoiseAlert();
             }
 
             tvTime.setText(String.format("Session Time: %02d:%02d", mins, secs));
-            tvNoise.setText(String.format("🎤 %.0f dB (Aim: < %d)", noiseDb, noiseLimit));
-            tvLight.setText(String.format("☀ %.0f lux (Aim: > %d)", lux, lightMin));
+            tvNoise.setText(String.format("🎤 %.0f dB (Aim: < %d)", noiseDb, currentNoiseLimit));
+            tvLight.setText(String.format("☀ %.0f lux (Aim: > %d)", lux, currentLightMin));
         });
+    }
 
-        tracker.startTracking(this, noiseLimit, lightMin);
+    private void startTracking() {
+        isTrackingActive = true;
+        btnJoin.setText("Leave Session");
+        btnJoin.setBackgroundColor(getResources().getColor(R.color.error_red, getTheme()));
+
+        getSharedPreferences("EnviroSensePrefs", Context.MODE_PRIVATE).edit()
+                .putString("ACTIVE_GROUP_NAME", groupName)
+                .putString("ACTIVE_GROUP_EMOJI", getIntent().getStringExtra("GROUP_EMOJI"))
+                .putInt("ACTIVE_GROUP_AVG_SCORE", currentAvgScore)
+                .putInt("ACTIVE_GROUP_MEMBERS", getIntent().getIntExtra("ACTIVE_MEMBERS", 3))
+                .apply();
+
+        int noiseLimit = getSharedPreferences("EnviroSensePrefs", Context.MODE_PRIVATE).getInt("noise_limit", 70);
+        int lightMin = getSharedPreferences("EnviroSensePrefs", Context.MODE_PRIVATE).getInt("light_min", 300);
+
+        tvNoise.setText("🎤 < " + noiseLimit + " dB");
+        tvLight.setText("☀ > " + lightMin + " lux");
+
+        setupTrackerCallback();
+
+        SharedFocusTracker.getInstance().startTracking(this, noiseLimit, lightMin);
     }
 
     private void stopTracking() {
@@ -216,8 +245,6 @@ public class GroupSessionActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (isTrackingActive) {
-            SharedFocusTracker.getInstance().stopTracking();
-        }
+        // Do not stop tracking on destroy to allow the session to persist in the background
     }
 }
