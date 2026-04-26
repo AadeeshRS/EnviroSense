@@ -49,7 +49,19 @@ public class GroupDetailBottomSheet extends BottomSheetDialogFragment {
         TextView tvName = view.findViewById(R.id.tv_sheet_group_name);
         TextView tvDesc = view.findViewById(R.id.tv_sheet_description);
 
-        if (group.customIconBitmap != null) {
+        if (group.customIconBase64 != null && !group.customIconBase64.isEmpty()) {
+            try {
+                byte[] decodedBytes = android.util.Base64.decode(group.customIconBase64, android.util.Base64.DEFAULT);
+                android.graphics.Bitmap bmp = android.graphics.BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
+                ivIcon.setVisibility(View.VISIBLE);
+                ivIcon.setImageBitmap(bmp);
+                tvEmoji.setVisibility(View.INVISIBLE);
+            } catch (Exception e) {
+                ivIcon.setVisibility(View.INVISIBLE);
+                tvEmoji.setVisibility(View.VISIBLE);
+                tvEmoji.setText(group.emoji);
+            }
+        } else if (group.customIconBitmap != null) {
             ivIcon.setVisibility(View.VISIBLE);
             ivIcon.setImageBitmap(group.customIconBitmap);
             tvEmoji.setVisibility(View.GONE);

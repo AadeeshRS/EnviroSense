@@ -47,13 +47,13 @@ public class CommunityViewModel extends ViewModel {
                 List<StudyGroup> initial = new ArrayList<>();
                 initial.add(new StudyGroup("Coding Elite", 45, 92,
                         "Focus hours for CS students and devs", "💻",
-                        java.util.Arrays.asList("DSA", "OS", "Java", "Python", "ML"), 1280.0, 18, "Dec 01, 2025"));
+                        java.util.Arrays.asList("DSA", "OS", "Java", "Python", "ML"), 1280.0, 18, 12, "Dec 01, 2025"));
                 initial.add(new StudyGroup("Morning Birds", 8, 85,
                         "We focus early. 5AM - 8AM only.", "🌅",
-                        java.util.Arrays.asList("Maths", "Physics"), 96.2, 4, "Mar 10, 2026"));
+                        java.util.Arrays.asList("Maths", "Physics"), 96.2, 4, 1, "Mar 10, 2026"));
                 initial.add(new StudyGroup("Library Legends", 12, 78,
                         "Daily study sessions at the campus library", "📚",
-                        java.util.Arrays.asList("DCCN", "DAA", "DBMS"), 340.5, 5, "Jan 15, 2026"));
+                        java.util.Arrays.asList("DCCN", "DAA", "DBMS"), 340.5, 5, 2, "Jan 15, 2026"));
 
                 for (StudyGroup g : initial) {
                     db.collection("groups").document(g.groupName.trim()).set(g);

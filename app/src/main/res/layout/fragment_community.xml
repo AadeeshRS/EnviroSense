@@ -30,8 +30,8 @@
             android:text="#4"
             android:textColor="@color/white"
             android:textSize="16sp"
-            android:textStyle="bold" 
-        android:fontFamily="@font/poppins_bold" />
+            android:textStyle="bold"
+            android:fontFamily="@font/poppins_bold" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -47,8 +47,8 @@
                 android:text="You"
                 android:textColor="@color/white"
                 android:textSize="16sp"
-                android:textStyle="bold" 
-        android:fontFamily="@font/poppins_bold" />
+                android:textStyle="bold"
+                android:fontFamily="@font/poppins_bold" />
 
             <TextView
                 android:id="@+id/tv_your_stats"
@@ -56,8 +56,8 @@
                 android:layout_height="wrap_content"
                 android:text="Score: 82 · 24.5 hrs"
                 android:textColor="@color/text_secondary"
-                android:textSize="13sp" 
-        android:fontFamily="@font/poppins" />
+                android:textSize="13sp"
+                android:fontFamily="@font/poppins" />
         </LinearLayout>
 
         <TextView
@@ -66,8 +66,49 @@
             android:text="YOUR RANK"
             android:textColor="@color/primary_green"
             android:textSize="11sp"
-            android:textStyle="bold" 
-        android:fontFamily="@font/poppins_bold" />
+            android:textStyle="bold"
+            android:fontFamily="@font/poppins_bold" />
+    </LinearLayout>
+
+    <!-- Tab toggle -->
+    <LinearLayout
+        android:id="@+id/community_toggle_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="#161819"
+        android:orientation="horizontal"
+        android:padding="4dp"
+        app:layout_constraintTop_toBottomOf="@id/card_your_rank">
+
+        <TextView
+            android:id="@+id/tv_tab_leaderboard"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/bg_card_rounded"
+            android:backgroundTint="#2A2C2E"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text="Leaderboard"
+            android:textColor="@color/white"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:fontFamily="@font/poppins_bold" />
+
+        <TextView
+            android:id="@+id/tv_tab_groups"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@drawable/bg_card_rounded"
+            android:backgroundTint="#00000000"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text="Groups"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            android:fontFamily="@font/poppins_bold" />
     </LinearLayout>
 
     <!-- Leaderboard RecyclerView -->
@@ -75,10 +116,22 @@
         android:id="@+id/rv_leaderboard"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="16dp"
         android:clipToPadding="false"
         android:paddingBottom="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/card_your_rank" />
+        app:layout_constraintTop_toBottomOf="@id/community_toggle_container" />
+
+    <!-- Groups RecyclerView (hidden by default) -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_groups"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/community_toggle_container" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

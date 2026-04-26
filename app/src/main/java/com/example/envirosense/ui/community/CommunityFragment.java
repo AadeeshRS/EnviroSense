@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.envirosense.R;
 import com.example.envirosense.data.models.LeaderboardEntry;
+import com.example.envirosense.data.models.StudyGroup;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -24,11 +25,15 @@ import java.util.List;
 
 public class CommunityFragment extends Fragment {
 
-    private RecyclerView rvLeaderboard;
+    private RecyclerView rvLeaderboard, rvGroups;
     private LeaderboardAdapter leaderboardAdapter;
+    private GroupsAdapter groupsAdapter;
     private final List<LeaderboardEntry> leaderboardList = new ArrayList<>();
+    private final List<StudyGroup> groupsList = new ArrayList<>();
     private ListenerRegistration userListener;
     private ListenerRegistration leaderboardListener;
+    private android.widget.TextView tvTabLeaderboard, tvTabGroups;
+    private CommunityViewModel communityViewModel;
 
     private static final List<LeaderboardEntry> DUMMY_USERS = Arrays.asList(
             new LeaderboardEntry(0, "Aisha P.", 95, 120.5),
@@ -51,12 +56,55 @@ public class CommunityFragment extends Fragment {
         leaderboardAdapter = new LeaderboardAdapter(leaderboardList);
         rvLeaderboard.setAdapter(leaderboardAdapter);
 
+        rvGroups = view.findViewById(R.id.rv_groups);
+        rvGroups.setLayoutManager(new LinearLayoutManager(getContext()));
+        groupsAdapter = new GroupsAdapter(groupsList, getChildFragmentManager(), false, null);
+        rvGroups.setAdapter(groupsAdapter);
+
+        tvTabLeaderboard = view.findViewById(R.id.tv_tab_leaderboard);
+        tvTabGroups = view.findViewById(R.id.tv_tab_groups);
+
+        tvTabLeaderboard.setOnClickListener(v -> showLeaderboard());
+        tvTabGroups.setOnClickListener(v -> showGroups());
+
         tvYourRankNumber = view.findViewById(R.id.tv_your_rank_number);
         tvYourName = view.findViewById(R.id.tv_your_name);
         tvYourStats = view.findViewById(R.id.tv_your_stats);
 
+        communityViewModel = new androidx.lifecycle.ViewModelProvider(requireActivity()).get(CommunityViewModel.class);
+        communityViewModel.getAvailableGroups().observe(getViewLifecycleOwner(), groups -> {
+            groupsList.clear();
+            groupsList.addAll(groups);
+            groupsAdapter.notifyDataSetChanged();
+        });
+
         loadLeaderboard();
+        showLeaderboard();
         return view;
+    }
+
+    private void showLeaderboard() {
+        rvLeaderboard.setVisibility(View.VISIBLE);
+        rvGroups.setVisibility(View.GONE);
+
+        tvTabLeaderboard.setBackgroundResource(R.drawable.bg_card_rounded);
+        tvTabLeaderboard.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#2A2C2E")));
+        tvTabLeaderboard.setTextColor(android.graphics.Color.WHITE);
+
+        tvTabGroups.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+        tvTabGroups.setTextColor(android.graphics.Color.parseColor("#8C959A"));
+    }
+
+    private void showGroups() {
+        rvLeaderboard.setVisibility(View.GONE);
+        rvGroups.setVisibility(View.VISIBLE);
+
+        tvTabGroups.setBackgroundResource(R.drawable.bg_card_rounded);
+        tvTabGroups.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#2A2C2E")));
+        tvTabGroups.setTextColor(android.graphics.Color.WHITE);
+
+        tvTabLeaderboard.setBackgroundColor(android.graphics.Color.TRANSPARENT);
+        tvTabLeaderboard.setTextColor(android.graphics.Color.parseColor("#8C959A"));
     }
 
     @Override
