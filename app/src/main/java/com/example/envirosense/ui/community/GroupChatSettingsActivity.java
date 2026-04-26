@@ -3,6 +3,7 @@ package com.example.envirosense.ui.community;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,6 +54,14 @@ public class GroupChatSettingsActivity extends AppCompatActivity {
         }
         tvParticipants.setText("Members: " + totalParticipants);
         tvActiveStudents.setText("Active Now: " + activeMembers);
+
+        // Group Resources option
+        LinearLayout optionResources = findViewById(R.id.option_group_resources);
+        optionResources.setOnClickListener(v -> {
+            Intent intent = new Intent(GroupChatSettingsActivity.this, GroupResourcesActivity.class);
+            intent.putExtra("GROUP_NAME", groupName);
+            startActivity(intent);
+        });
 
         btnClearChat.setOnClickListener(v -> {
             new AlertDialog.Builder(this)

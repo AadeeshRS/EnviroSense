@@ -121,7 +121,7 @@ public class CreateCommunityBottomSheet extends BottomSheetDialogFragment {
         StudyGroup newGroup = new StudyGroup(
                 name,
                 1, // Creator is the first member
-                100, // Starting score
+                0, // Starting score
                 desc,
                 emoji,
                 subjects,

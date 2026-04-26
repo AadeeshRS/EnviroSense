@@ -22,6 +22,7 @@ public class CommunityViewModel extends ViewModel {
 
     private final MutableLiveData<List<StudyGroup>> joinedGroups = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<List<StudyGroup>> availableGroups = new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<List<StudyGroup>> allGroups = new MutableLiveData<>(new ArrayList<>());
     private final FirebaseFirestore db = FirebaseFirestore.getInstance();
     private ListenerRegistration groupsListener;
     private ListenerRegistration joinedListener;
@@ -102,8 +103,15 @@ public class CommunityViewModel extends ViewModel {
             }
         }
 
+        joined.sort((a, b) -> Integer.compare(b.avgScore, a.avgScore));
+        available.sort((a, b) -> Integer.compare(b.avgScore, a.avgScore));
+
+        List<StudyGroup> all = new ArrayList<>(allGroupsCache);
+        all.sort((a, b) -> Integer.compare(b.avgScore, a.avgScore));
+
         joinedGroups.setValue(joined);
         availableGroups.setValue(available);
+        allGroups.setValue(all);
     }
 
     public void checkUserChanged() {
@@ -119,6 +127,10 @@ public class CommunityViewModel extends ViewModel {
 
     public LiveData<List<StudyGroup>> getAvailableGroups() {
         return availableGroups;
+    }
+
+    public LiveData<List<StudyGroup>> getAllGroups() {
+        return allGroups;
     }
 
     public boolean isGroupJoined(StudyGroup group) {

@@ -72,7 +72,7 @@ public class CommunityFragment extends Fragment {
         tvYourStats = view.findViewById(R.id.tv_your_stats);
 
         communityViewModel = new androidx.lifecycle.ViewModelProvider(requireActivity()).get(CommunityViewModel.class);
-        communityViewModel.getAvailableGroups().observe(getViewLifecycleOwner(), groups -> {
+        communityViewModel.getAllGroups().observe(getViewLifecycleOwner(), groups -> {
             groupsList.clear();
             groupsList.addAll(groups);
             groupsAdapter.notifyDataSetChanged();

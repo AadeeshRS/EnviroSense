@@ -49,7 +49,7 @@ public class SearchCommunityFragment extends Fragment {
         rvSearchResults.setAdapter(adapter);
 
         CommunityViewModel viewModel = new ViewModelProvider(requireActivity()).get(CommunityViewModel.class);
-        viewModel.getAvailableGroups().observe(getViewLifecycleOwner(), groups -> {
+        viewModel.getAllGroups().observe(getViewLifecycleOwner(), groups -> {
             allGroups.clear();
             if (groups != null) {
                 allGroups.addAll(groups);
