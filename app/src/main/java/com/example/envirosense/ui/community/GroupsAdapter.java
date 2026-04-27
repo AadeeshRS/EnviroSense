@@ -90,6 +90,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.ViewHolder
         holder.tvGroupName.setText(group.groupName);
         holder.tvGroupDesc.setText(group.description);
         holder.tvMemberCount.setText(String.valueOf(group.memberCount));
+        holder.tvActiveCount.setText(String.valueOf(group.activeMembers));
         holder.tvAvgScore.setText(String.valueOf(group.avgScore));
 
         // Populate subject chips
@@ -200,7 +201,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.ViewHolder
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvGroupEmoji, tvGroupName, tvGroupDesc, tvMemberCount, tvAvgScore;
+        TextView tvGroupEmoji, tvGroupName, tvGroupDesc, tvMemberCount, tvActiveCount, tvAvgScore;
         LinearLayout subjectRows;
         LinearLayout statsRow;
         MaterialButton btnViewGroup;
@@ -214,6 +215,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.ViewHolder
             tvGroupName = view.findViewById(R.id.tv_group_name);
             tvGroupDesc = view.findViewById(R.id.tv_group_desc);
             tvMemberCount = view.findViewById(R.id.tv_member_count);
+            tvActiveCount = view.findViewById(R.id.tv_active_count);
             tvAvgScore = view.findViewById(R.id.tv_avg_score);
             subjectRows = view.findViewById(R.id.subject_rows);
             statsRow = view.findViewById(R.id.stats_row);

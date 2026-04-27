@@ -134,7 +134,7 @@
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" 
-        android:fontFamily="@font/poppins_bold" />
+                android:fontFamily="@font/poppins_bold" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -142,7 +142,33 @@
                 android:text="Members"
                 android:textColor="@color/text_secondary"
                 android:textSize="11sp" 
-        android:fontFamily="@font/poppins" />
+                android:fontFamily="@font/poppins" />
+        </LinearLayout>
+
+        <!-- Active Members stat -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_active_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold" 
+                android:fontFamily="@font/poppins_bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Active"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp" 
+                android:fontFamily="@font/poppins" />
         </LinearLayout>
 
         <!-- Avg Score stat -->

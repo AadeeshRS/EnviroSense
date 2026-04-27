@@ -99,14 +99,22 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <ImageButton
+                <TextView
                     android:id="@+id/btn_start_session"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
                     android:layout_marginEnd="4dp"
-                    android:background="@drawable/bg_circle_black_green_border"
-                    android:src="@drawable/ic_add_black"
-                    app:tint="@color/primary_green"
+                    android:background="@drawable/bg_session_button"
+                    android:gravity="center"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:text="＋"
+                    android:textColor="@color/primary_green"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:fontFamily="@font/poppins_bold"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:contentDescription="Start Session" />
             </LinearLayout>
 

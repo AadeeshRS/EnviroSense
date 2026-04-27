@@ -1,13 +1,14 @@
 package com.example.envirosense.ui.community;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -28,8 +29,10 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -77,7 +80,7 @@ public class ChatActivity extends AppCompatActivity {
         llGroupInfo.setOnClickListener(v -> {
             Intent intent = new Intent(ChatActivity.this, GroupChatSettingsActivity.class);
             intent.putExtra("GROUP_NAME", groupName);
-            intent.putExtra("GROUP_EMOJI", groupEmoji);
+            intent.putExtra("GROUP_EMOJI", groupEmoji != null ? groupEmoji : "");
             startActivityForResult(intent, REQUEST_SETTINGS);
         });
 
@@ -86,15 +89,11 @@ public class ChatActivity extends AppCompatActivity {
             tvGroupEmoji.setText(groupEmoji);
         }
 
-        ImageButton btnStartSession = findViewById(R.id.btn_start_session);
+        TextView btnStartSession = findViewById(R.id.btn_start_session);
         btnStartSession.setOnClickListener(v -> {
-            Intent intent = new Intent(ChatActivity.this, GroupSessionActivity.class);
-            intent.putExtra("GROUP_NAME", groupName);
-            intent.putExtra("GROUP_EMOJI", groupEmoji);
-            intent.putExtra("AVG_SCORE", avgScore);
-            intent.putExtra("ACTIVE_MEMBERS", activeMembers);
-            startActivity(intent);
+            handleSessionButtonClick(groupEmoji, avgScore, activeMembers);
         });
+        updateSessionButton();
 
         rvMessages = findViewById(R.id.rv_chat_messages);
         etInput = findViewById(R.id.et_message_input);
@@ -209,6 +208,108 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
     
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateSessionButton();
+        setPresence(true);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        setPresence(false);
+    }
+
+    /**
+     * Adds or removes the current user from the real-time active_users sub-collection
+     * under the group document. Other clients listening to this sub-collection will
+     * see the count change in real time.
+     */
+    private void setPresence(boolean active) {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null || groupName == null) return;
+
+        if (active) {
+            Map<String, Object> data = new HashMap<>();
+            data.put("joinedAt", FieldValue.serverTimestamp());
+            db.collection("groups").document(groupName)
+                    .collection("active_users").document(user.getUid())
+                    .set(data);
+            // Also increment activeMembers on the main document for the list views
+            db.collection("groups").document(groupName)
+                    .update("activeMembers", FieldValue.increment(1));
+        } else {
+            db.collection("groups").document(groupName)
+                    .collection("active_users").document(user.getUid())
+                    .delete();
+            // Decrement activeMembers on the main document
+            db.collection("groups").document(groupName)
+                    .update("activeMembers", FieldValue.increment(-1));
+        }
+    }
+
+    // ── Session button state ─────────────────────────────────────────────
+
+    /**
+     * Updates the session button appearance based on the current session state:
+     *   • No session active        → green "+" icon (start a new session)
+     *   • This group's session     → green "Return" text
+     *   • Another group's session  → grey "Session" text (blocked)
+     */
+    private void updateSessionButton() {
+        TextView btn = findViewById(R.id.btn_start_session);
+        if (btn == null) return;
+
+        boolean sessionActive = SharedFocusTracker.getInstance().isTracking();
+        String activeGroup = getSharedPreferences("EnviroSensePrefs", Context.MODE_PRIVATE)
+                .getString("ACTIVE_GROUP_NAME", null);
+
+        if (sessionActive && groupName.equals(activeGroup)) {
+            // This group has an active session → show "Return"
+            btn.setText("Return");
+            btn.setTextColor(getResources().getColor(R.color.primary_green, getTheme()));
+            btn.setBackgroundResource(R.drawable.bg_session_button);
+        } else if (sessionActive) {
+            // A different group has an active session → show greyed-out
+            btn.setText("Session");
+            btn.setTextColor(0xFF6B6B6B);
+            btn.setBackgroundResource(R.drawable.bg_session_button_grey);
+        } else {
+            // No session active → show default "+"
+            btn.setText("＋");
+            btn.setTextColor(getResources().getColor(R.color.primary_green, getTheme()));
+            btn.setBackgroundResource(R.drawable.bg_session_button);
+        }
+    }
+
+    private void handleSessionButtonClick(String groupEmoji, int avgScore, int activeMembers) {
+        boolean sessionActive = SharedFocusTracker.getInstance().isTracking();
+        String activeGroup = getSharedPreferences("EnviroSensePrefs", Context.MODE_PRIVATE)
+                .getString("ACTIVE_GROUP_NAME", null);
+
+        if (sessionActive && groupName.equals(activeGroup)) {
+            // Return to the active session
+            Intent intent = new Intent(this, GroupSessionActivity.class);
+            intent.putExtra("GROUP_NAME", groupName);
+            intent.putExtra("GROUP_EMOJI", groupEmoji);
+            intent.putExtra("AVG_SCORE", avgScore);
+            intent.putExtra("ACTIVE_MEMBERS", activeMembers);
+            startActivity(intent);
+        } else if (sessionActive) {
+            // Blocked – another group's session is running
+            Toast.makeText(this, "Please end the current session first", Toast.LENGTH_SHORT).show();
+        } else {
+            // Start a new session
+            Intent intent = new Intent(this, GroupSessionActivity.class);
+            intent.putExtra("GROUP_NAME", groupName);
+            intent.putExtra("GROUP_EMOJI", groupEmoji);
+            intent.putExtra("AVG_SCORE", avgScore);
+            intent.putExtra("ACTIVE_MEMBERS", activeMembers);
+            startActivity(intent);
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

@@ -13,14 +13,15 @@ import androidx.appcompat.widget.Toolbar;
 import com.example.envirosense.R;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class GroupChatSettingsActivity extends AppCompatActivity {
 
     private String groupName;
+    private FirebaseFirestore db;
+    private ListenerRegistration memberListener;
+    private ListenerRegistration activeListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,10 +38,10 @@ public class GroupChatSettingsActivity extends AppCompatActivity {
 
         groupName = getIntent().getStringExtra("GROUP_NAME");
         String emoji = getIntent().getStringExtra("GROUP_EMOJI");
-        int activeMembers = getIntent().getIntExtra("ACTIVE_MEMBERS", 0);
-        int totalParticipants = getIntent().getIntExtra("TOTAL_PARTICIPANTS", 0);
 
         if (groupName == null) groupName = "Unknown Group";
+
+        db = FirebaseFirestore.getInstance();
 
         TextView tvEmoji = findViewById(R.id.tv_settings_emoji);
         TextView tvName = findViewById(R.id.tv_settings_group_name);
@@ -52,8 +53,23 @@ public class GroupChatSettingsActivity extends AppCompatActivity {
         if (emoji != null) {
             tvEmoji.setText(emoji);
         }
-        tvParticipants.setText("Members: " + totalParticipants);
-        tvActiveStudents.setText("Active Now: " + activeMembers);
+
+        // ── Real-time member count from the group document ───────────────
+        memberListener = db.collection("groups").document(groupName)
+                .addSnapshotListener((snapshot, error) -> {
+                    if (error != null || snapshot == null || !snapshot.exists()) return;
+                    Long count = snapshot.getLong("memberCount");
+                    tvParticipants.setText("Members: " + (count != null ? count : 0));
+                });
+
+        // ── Real-time active users from the active_users sub-collection ──
+        activeListener = db.collection("groups").document(groupName)
+                .collection("active_users")
+                .addSnapshotListener((value, error) -> {
+                    if (error != null || value == null) return;
+                    int activeCount = value.size();
+                    tvActiveStudents.setText("Active Now: " + activeCount);
+                });
 
         // Group Resources option
         LinearLayout optionResources = findViewById(R.id.option_group_resources);
@@ -68,7 +84,6 @@ public class GroupChatSettingsActivity extends AppCompatActivity {
                     .setTitle("Clear Chat")
                     .setMessage("Are you sure you want to clear all messages in this group? This action cannot be undone.")
                     .setPositiveButton("Clear", (dialog, which) -> {
-                        FirebaseFirestore db = FirebaseFirestore.getInstance();
                         db.collection("groups").document(groupName)
                                 .collection("messages")
                                 .get()
@@ -91,5 +106,7 @@ public class GroupChatSettingsActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (memberListener != null) memberListener.remove();
+        if (activeListener != null) activeListener.remove();
     }
 }

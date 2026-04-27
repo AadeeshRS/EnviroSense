@@ -17,10 +17,14 @@ import com.example.envirosense.R;
 import com.example.envirosense.data.models.StudyGroup;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 
 public class GroupDetailBottomSheet extends BottomSheetDialogFragment {
 
     private final StudyGroup group;
+    private ListenerRegistration memberCountListener;
+    private ListenerRegistration activeUsersListener;
 
     // Same chip colors as GroupsAdapter for consistency
     private static final int[] CHIP_COLORS = {
@@ -88,11 +92,29 @@ public class GroupDetailBottomSheet extends BottomSheetDialogFragment {
         TextView tvAvgScore = view.findViewById(R.id.tv_sheet_avg_score);
         TextView tvCreated = view.findViewById(R.id.tv_sheet_created);
 
+        // Set initial static values
         tvMembers.setText(String.valueOf(group.memberCount));
         tvActive.setText(String.valueOf(group.activeMembers));
         tvHours.setText(String.format("%.1f hrs", group.totalFocusHours));
         tvAvgScore.setText(String.valueOf(group.avgScore));
         tvCreated.setText(group.creationDate);
+
+        // Real-time member count from the group document
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        memberCountListener = db.collection("groups").document(group.groupName.trim())
+                .addSnapshotListener((snapshot, error) -> {
+                    if (error != null || snapshot == null || !snapshot.exists()) return;
+                    Long count = snapshot.getLong("memberCount");
+                    tvMembers.setText(String.valueOf(count != null ? count : 0));
+                });
+
+        // Real-time active users from the active_users sub-collection
+        activeUsersListener = db.collection("groups").document(group.groupName.trim())
+                .collection("active_users")
+                .addSnapshotListener((value, error) -> {
+                    if (error != null || value == null) return;
+                    tvActive.setText(String.valueOf(value.size()));
+                });
 
         // Check ViewModel for current state
         CommunityViewModel viewModel = new ViewModelProvider(requireActivity()).get(CommunityViewModel.class);
@@ -150,5 +172,12 @@ public class GroupDetailBottomSheet extends BottomSheetDialogFragment {
         return (int) TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP, dp,
                 view.getContext().getResources().getDisplayMetrics());
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (memberCountListener != null) memberCountListener.remove();
+        if (activeUsersListener != null) activeUsersListener.remove();
     }
 }
