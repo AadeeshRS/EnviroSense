@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -52,6 +55,19 @@ public class MainActivity extends AppCompatActivity {
     private boolean isCommunityNavActive = false;
 
     private boolean isSyncing = false;
+
+    // ── Navigation back stack ────────────────────────────────────────────
+    private static class NavState {
+        final Fragment fragment;
+        final boolean communityNav;
+        final String title;
+        NavState(Fragment fragment, boolean communityNav, String title) {
+            this.fragment = fragment;
+            this.communityNav = communityNav;
+            this.title = title;
+        }
+    }
+    private final Deque<NavState> backStack = new ArrayDeque<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -239,6 +255,8 @@ public class MainActivity extends AppCompatActivity {
 
    
     private void enterCommunityNav() {
+        // Push current state before switching
+        pushBackStack();
         isCommunityNavActive = true;
         bottomNav.getMenu().clear();
         bottomNav.inflateMenu(R.menu.bottom_nav_community_menu);
@@ -272,6 +290,8 @@ public class MainActivity extends AppCompatActivity {
     
     private void showCommunitySubFragment(Fragment target, String title) {
         if (target != activeFragment) {
+            // Push current community sub-state before switching
+            pushBackStack();
             getSupportFragmentManager().beginTransaction()
                     .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
                     .hide(activeFragment)
@@ -317,6 +337,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (targetFragment != null && targetFragment != activeFragment) {
+            // Push current state before switching
+            pushBackStack();
             getSupportFragmentManager().beginTransaction()
                     .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
                     .hide(activeFragment)
@@ -416,12 +438,116 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // ── Back stack helpers ────────────────────────────────────────────────
+
+    private void pushBackStack() {
+        String title = toolbar.getTitle() != null ? toolbar.getTitle().toString() : "EnviroSense";
+        backStack.push(new NavState(activeFragment, isCommunityNavActive, title));
+    }
+
     @Override
     public void onBackPressed() {
+        // 1. Close drawer if open
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
+            return;
         }
+
+        // 2. If back stack has entries, pop and restore
+        if (!backStack.isEmpty()) {
+            NavState prev = backStack.pop();
+
+            // Handle community nav mode transition
+            if (prev.communityNav != isCommunityNavActive) {
+                if (prev.communityNav) {
+                    isCommunityNavActive = true;
+                    bottomNav.getMenu().clear();
+                    bottomNav.inflateMenu(R.menu.bottom_nav_community_menu);
+                } else {
+                    isCommunityNavActive = false;
+                    bottomNav.getMenu().clear();
+                    bottomNav.inflateMenu(R.menu.bottom_nav_menu);
+                }
+            }
+
+            // Switch to the previous fragment
+            if (prev.fragment != activeFragment) {
+                getSupportFragmentManager().beginTransaction()
+                        .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
+                        .hide(activeFragment)
+                        .show(prev.fragment)
+                        .commit();
+                activeFragment = prev.fragment;
+            }
+
+            toolbar.setTitle(prev.title);
+            updateToolbarButtons(activeFragment);
+            syncBottomNavSelection();
+            return;
+        }
+
+        // 3. If not on home, go home first
+        if (activeFragment != homeFragment) {
+            if (isCommunityNavActive) {
+                exitCommunityNav();
+            }
+            getSupportFragmentManager().beginTransaction()
+                    .setCustomAnimations(R.anim.fade_in, R.anim.fade_out)
+                    .hide(activeFragment)
+                    .show(homeFragment)
+                    .commit();
+            activeFragment = homeFragment;
+            toolbar.setTitle("EnviroSense");
+            updateToolbarButtons(homeFragment);
+            syncBottomNavSelection();
+            backStack.clear();
+            return;
+        }
+
+        // 4. Already on home with empty stack – exit app
+        super.onBackPressed();
+    }
+
+    /**
+     * Keeps the bottom nav checked-item in sync with the currently active fragment.
+     */
+    private void syncBottomNavSelection() {
+        boolean wasSyncing = isSyncing;
+        isSyncing = true;
+
+        if (isCommunityNavActive) {
+            if (activeFragment == communityFragment) {
+                bottomNav.setSelectedItemId(R.id.comm_leaderboard);
+            } else if (activeFragment == myCommunityFragment) {
+                bottomNav.setSelectedItemId(R.id.comm_my_communities);
+            } else if (activeFragment == searchCommunityFragment) {
+                bottomNav.setSelectedItemId(R.id.comm_search);
+            } else if (activeFragment == myResourcesFragment) {
+                bottomNav.setSelectedItemId(R.id.comm_my_resources);
+            }
+        } else {
+            if (activeFragment == homeFragment) {
+                bottomNav.setSelectedItemId(R.id.navigation_home);
+            } else if (activeFragment == analyticsFragment) {
+                bottomNav.setSelectedItemId(R.id.navigation_analytics);
+            } else if (activeFragment == achievementsFragment) {
+                bottomNav.setSelectedItemId(R.id.navigation_achieve);
+            } else if (activeFragment == communityFragment) {
+                bottomNav.setSelectedItemId(R.id.navigation_community);
+            } else {
+                // Settings / Profile are drawer-only – clear bottom nav selection
+                clearBottomNavSelection();
+            }
+        }
+        navView.setCheckedItem(
+                activeFragment == homeFragment ? R.id.navigation_home :
+                activeFragment == analyticsFragment ? R.id.navigation_analytics :
+                activeFragment == achievementsFragment ? R.id.navigation_achieve :
+                activeFragment == settingsFragment ? R.id.navigation_settings :
+                activeFragment == profileFragment ? R.id.navigation_profile :
+                R.id.navigation_community
+        );
+
+        isSyncing = wasSyncing;
     }
 }

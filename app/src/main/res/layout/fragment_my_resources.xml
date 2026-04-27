@@ -17,7 +17,7 @@
         android:textSize="22sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" 
+        app:layout_constraintTop_toTopOf="parent"
         android:fontFamily="@font/poppins_bold" />
 
     <TextView
@@ -25,11 +25,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:text="Shared notes and files from your groups"
+        android:text="Your personal notes and files, stored locally"
         android:textColor="@color/text_secondary"
         android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_resources_title" 
+        app:layout_constraintTop_toBottomOf="@id/tv_resources_title"
         android:fontFamily="@font/poppins" />
 
     <!-- Resources RecyclerView -->
@@ -39,7 +39,7 @@
         android:layout_height="0dp"
         android:layout_marginTop="20dp"
         android:clipToPadding="false"
-        android:paddingBottom="16dp"
+        android:paddingBottom="80dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_resources_subtitle" />
@@ -60,8 +60,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="📁"
-            android:textSize="52sp" 
-        android:fontFamily="@font/poppins" />
+            android:textSize="52sp"
+            android:fontFamily="@font/poppins" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -71,18 +71,62 @@
             android:text="No resources yet"
             android:textColor="@color/white"
             android:textSize="18sp"
-            android:textStyle="bold" 
-        android:fontFamily="@font/poppins_bold" />
+            android:textStyle="bold"
+            android:fontFamily="@font/poppins_bold" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:gravity="center"
-            android:text="Resources shared in your groups\nwill appear here"
+            android:text="Tap + to add notes, PDFs,\nor files from your device"
             android:textColor="@color/text_secondary"
-            android:textSize="14sp" 
-        android:fontFamily="@font/poppins" />
+            android:textSize="14sp"
+            android:fontFamily="@font/poppins" />
     </LinearLayout>
+
+    <!-- Save progress bar (shown while copying file) -->
+    <LinearLayout
+        android:id="@+id/layout_save_progress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/surface_dark"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="14dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ProgressBar
+            android:id="@+id/progress_save"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:indeterminateTint="@color/primary_green" />
+
+        <TextView
+            android:id="@+id/tv_save_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="Saving file…"
+            android:textColor="@color/white"
+            android:textSize="13sp"
+            android:fontFamily="@font/poppins" />
+    </LinearLayout>
+
+    <!-- FAB to add resources -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_my_resource"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="24dp"
+        android:src="@drawable/ic_add_black"
+        app:backgroundTint="@color/primary_green"
+        app:tint="@color/white"
+        app:layout_constraintBottom_toTopOf="@id/layout_save_progress"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

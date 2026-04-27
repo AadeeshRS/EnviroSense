@@ -5,10 +5,13 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-@Database(entities = {FocusSession.class}, version = 6, exportSchema = false)
+import com.example.envirosense.data.models.MyResource;
+
+@Database(entities = {FocusSession.class, MyResource.class}, version = 7, exportSchema = false)
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract FocusSessionDao focusSessionDao();
+    public abstract MyResourceDao myResourceDao();
 
     private static volatile AppDatabase INSTANCE;
 

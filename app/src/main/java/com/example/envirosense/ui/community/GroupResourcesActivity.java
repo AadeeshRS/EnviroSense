@@ -36,6 +36,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -244,11 +245,36 @@ public class GroupResourcesActivity extends AppCompatActivity {
     /**
      * Uploads the selected file to Firebase Storage, then saves the download URL
      * and metadata to Firestore so all group members can access it.
+     *
+     * Uses putStream() instead of putFile() because ACTION_OPEN_DOCUMENT returns
+     * content:// URIs that putFile() cannot resolve as local file paths, causing
+     * "object doesn't exist at the location" errors.
      */
     private void uploadToFirebaseStorage(Uri fileUri, String sourceType) {
         String fileName = getFileName(fileUri);
         long fileSize = getFileSize(fileUri);
         String fileType = getFileExtension(fileUri);
+
+        // Take persistable read permission so the URI remains accessible
+        try {
+            getContentResolver().takePersistableUriPermission(
+                    fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        } catch (SecurityException e) {
+            // Not all providers support persistable permissions – safe to ignore
+        }
+
+        // Open an InputStream from the content URI
+        InputStream inputStream;
+        try {
+            inputStream = getContentResolver().openInputStream(fileUri);
+        } catch (Exception e) {
+            Toast.makeText(this, "Cannot read selected file", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (inputStream == null) {
+            Toast.makeText(this, "Cannot read selected file", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         // Show progress
         showUploadProgress(true);
@@ -256,11 +282,27 @@ public class GroupResourcesActivity extends AppCompatActivity {
         tvUploadStatus.setText("Uploading… 0%");
         fabAdd.setEnabled(false);
 
-        // Create a unique path in Storage: group_resources/{groupName}/{uuid}_{fileName}
-        String storagePath = "group_resources/" + groupName + "/" + UUID.randomUUID() + "_" + fileName;
+        // Sanitize group name for safe storage path (replace spaces, remove special chars)
+        String safeGroupName = groupName.replaceAll("[^a-zA-Z0-9_\\-]", "_");
+
+        // Create a unique path in Storage: group_resources/{safeGroupName}/{uuid}_{fileName}
+        String storagePath = "group_resources/" + safeGroupName + "/" + UUID.randomUUID() + "_" + fileName;
         StorageReference storageRef = storage.getReference().child(storagePath);
 
-        UploadTask uploadTask = storageRef.putFile(fileUri);
+        android.util.Log.d("GroupResources", "Storage bucket: " + storage.getReference().getBucket());
+        android.util.Log.d("GroupResources", "Upload path: " + storagePath);
+
+        // Build metadata with content type so Storage knows the file type
+        String mimeType = getContentResolver().getType(fileUri);
+        com.google.firebase.storage.StorageMetadata.Builder metaBuilder =
+                new com.google.firebase.storage.StorageMetadata.Builder();
+        if (mimeType != null) {
+            metaBuilder.setContentType(mimeType);
+        }
+        com.google.firebase.storage.StorageMetadata metadata = metaBuilder.build();
+
+        // Use putStream() with metadata – works reliably with all content:// URIs
+        UploadTask uploadTask = storageRef.putStream(inputStream, metadata);
 
         // Progress listener
         uploadTask.addOnProgressListener(snapshot -> {
@@ -286,12 +328,15 @@ public class GroupResourcesActivity extends AppCompatActivity {
             }).addOnFailureListener(e -> {
                 showUploadProgress(false);
                 fabAdd.setEnabled(true);
+                android.util.Log.e("GroupResources", "Download URL failed", e);
                 Toast.makeText(this, "Failed to get download URL", Toast.LENGTH_SHORT).show();
             });
 
         }).addOnFailureListener(e -> {
             showUploadProgress(false);
             fabAdd.setEnabled(true);
+            android.util.Log.e("GroupResources", "Upload failed. Bucket: "
+                    + storage.getReference().getBucket() + ", Path: " + storagePath, e);
             Toast.makeText(this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         });
     }

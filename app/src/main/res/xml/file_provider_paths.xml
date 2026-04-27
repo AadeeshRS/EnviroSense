@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- App-internal files directory (Context.getFilesDir()) -->
+    <files-path name="my_resources" path="my_resources/" />
+</paths>
